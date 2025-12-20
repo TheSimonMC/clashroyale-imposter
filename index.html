@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clash Royale Wortspiel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-dark: #0f0f13;
+    --panel-bg: rgba(30, 30, 45, 0.7);
+    --primary: #4fc3f7;
+    --accent: #ff0055;
+    --text-main: #ffffff;
+    --text-muted: #a0a0b0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top center, #1f2235, #000000);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 {
+    font-weight: 800;
+    margin-bottom: 5px;
+    background: linear-gradient(to right, #fff, #4fc3f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 28px;
+    text-align: center;
+}
+
+p { color: var(--text-muted); margin-bottom: 25px; font-size: 14px; text-align: center; }
+
+/* --- Setup Panel --- */
+.panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    font-weight: 600;
+    text-align: left;
+}
+
+select, input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.3);
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    transition: 0.3s;
+    outline: none;
+}
+
+select:focus, input:focus {
+    border-color: var(--primary);
+    background: rgba(0,0,0,0.5);
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.name-row span {
+    width: 20px;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+/* --- Buttons --- */
+button {
+    margin-top: 30px;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4fc3f7, #0288d1);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:active { transform: scale(0.97); }
+
+/* --- Game Area --- */
+#game {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Player Name Animation */
+#currentPlayer {
+    font-size: 32px;
+    margin: 10px 0;
+    text-shadow: 0 0 20px rgba(0,0,0,0.8);
+    transition: color 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.turn-change-anim {
+    animation: popIn 0.4s ease forwards;
+}
+
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* --- Card Styles --- */
+.card-container {
+    width: 220px;
+    height: 300px;
+    margin: 20px auto;
+    perspective: 1000px;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 18px;
+    transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transform-style: preserve-3d;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.card.flipped { transform: rotateY(180deg); }
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 4px solid #1a1a2e;
+}
+
+.front {
+    background: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.front img {
+    opacity: 0.8;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.back {
+    transform: rotateY(180deg);
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.word-badge {
+    position: absolute;
+    bottom: 15px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* Imposter Style */
+.imposter-card {
+    background: radial-gradient(circle, #8a0000, #200000);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #ff4d4d;
+    text-shadow: 0 0 10px #ff0000;
+}
+
+.imposter-card .icon { font-size: 60px; margin-bottom: 15px; }
+.imposter-card .text { font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+
+<body>
+
+<h1>Clash Royale <span style="color:var(--primary)">Secret</span></h1>
+<p id="instructionText">Halte die Karte gedrückt, um deine Rolle zu sehen</p>
+
+<div class="panel" id="setupPanel">
+    <label>Spieleranzahl</label>
+    <select id="playerCount" onchange="updateNames(); updateImposters();">
+        <option>3</option><option>4</option><option>5</option>
+        <option selected>6</option>
+        <option>7</option><option>8</option>
+    </select>
+
+    <label>Anzahl Imposter</label>
+    <select id="imposters"></select>
+
+    <label>Namen eingeben</label>
+    <div id="names"></div>
+
+    <button onclick="start()">Spiel Starten</button>
+</div>
+
+<div id="game" class="hidden">
+    <h2 id="currentPlayer"></h2>
+
+    <div class="card-container">
+        <div id="card" class="card">
+            <div class="face front">
+                <img src="https://static.wikia.nocookie.net/clashroyale/images/3/3a/MysteryCard.png/revision/latest/thumbnail/width/720/height/900?cb=20171212213717" 
+                style="width: 100%; height: 100%; object-fit: cover;"> 
+            </div>
+            <div class="face back" id="backFace"></div>
+        </div>
+    </div>
+
+    <p style="margin-top:10px; opacity:0.6;">(Gedrückt halten)</p>
+    <button onclick="next()" id="nextBtn">Nächster Spieler</button>
+</div>
+
+<script>
+// --- Data & Config ---
+const playerColors = [
+    "#FF4757", // Red
+    "#2ED573", // Green
+    "#1E90FF", // Blue
+    "#FFA502", // Orange
+    "#E056FD", // Purple
+    "#F1C40F", // Yellow
+    "#00D2D3", // Cyan
+    "#FF6B81"  // Pink
+];
+
+const cards = [
+  {n:"Knight",i:"https://royaleapi.com/static/img/cards-150/knight.png"},
+  {n:"Archers",i:"https://royaleapi.com/static/img/cards-150/archers.png"},
+  {n:"Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins.png"},
+  {n:"Giant",i:"https://royaleapi.com/static/img/cards-150/giant.png"},
+  {n:"P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka.png"},
+  {n:"Minions",i:"https://royaleapi.com/static/img/cards-150/minions.png"},
+  {n:"Balloon",i:"https://royaleapi.com/static/img/cards-150/balloon.png"},
+  {n:"Witch",i:"https://royaleapi.com/static/img/cards-150/witch.png"},
+  {n:"Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians.png"},
+  {n:"Golem",i:"https://royaleapi.com/static/img/cards-150/golem.png"},
+  {n:"Skeletons",i:"https://royaleapi.com/static/img/cards-150/skeletons.png"},
+  {n:"Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie.png"},
+  {n:"Skeleton Army",i:"https://royaleapi.com/static/img/cards-150/skeleton-army.png"},
+  {n:"Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber.png"},
+  {n:"Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer.png"},
+  {n:"Baby Dragon",i:"https://royaleapi.com/static/img/cards-150/baby-dragon.png"},
+  {n:"Prince",i:"https://royaleapi.com/static/img/cards-150/prince.png"},
+  {n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png"},
+  {n:"Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka.png"},
+  {n:"Spear Goblins",i:"https://royaleapi.com/static/img/cards-150/spear-goblins.png"},
+  {n:"Giant Skeleton",i:"https://royaleapi.com/static/img/cards-150/giant-skeleton.png"},
+  {n:"Hog Rider",i:"https://royaleapi.com/static/img/cards-150/hog-rider.png"},
+  {n:"Minion Horde",i:"https://royaleapi.com/static/img/cards-150/minion-horde.png"},
+  {n:"Ice Wizard",i:"https://royaleapi.com/static/img/cards-150/ice-wizard.png"},
+  {n:"Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant.png"},
+  {n:"Guards",i:"https://royaleapi.com/static/img/cards-150/guards.png"},
+  {n:"Princess",i:"https://royaleapi.com/static/img/cards-150/princess.png"},
+  {n:"Dark Prince",i:"https://royaleapi.com/static/img/cards-150/dark-prince.png"},
+  {n:"Three Musketeers",i:"https://royaleapi.com/static/img/cards-150/three-musketeers.png"},
+  {n:"Lava Hound",i:"https://royaleapi.com/static/img/cards-150/lava-hound.png"},
+  {n:"Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit.png"},
+  {n:"Fire Spirit",i:"https://royaleapi.com/static/img/cards-150/fire-spirit.png"},
+  {n:"Miner",i:"https://royaleapi.com/static/img/cards-150/miner.png"},
+  {n:"Sparky",i:"https://royaleapi.com/static/img/cards-150/sparky.png"},
+  {n:"Bowler",i:"https://royaleapi.com/static/img/cards-150/bowler.png"},
+  {n:"Lumberjack",i:"https://royaleapi.com/static/img/cards-150/lumberjack.png"},
+  {n:"Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram.png"},
+  {n:"Inferno Dragon",i:"https://royaleapi.com/static/img/cards-150/inferno-dragon.png"},
+  {n:"Ice Golem",i:"https://royaleapi.com/static/img/cards-150/ice-golem.png"},
+  {n:"Mega Minion",i:"https://royaleapi.com/static/img/cards-150/mega-minion.png"},
+  {n:"Dart Goblin",i:"https://royaleapi.com/static/img/cards-150/dart-goblin.png"},
+  {n:"Goblin Gang",i:"https://royaleapi.com/static/img/cards-150/goblin-gang.png"},
+  {n:"Electro Wizard",i:"https://royaleapi.com/static/img/cards-150/electro-wizard.png"},
+  {n:"Elite Barbarians",i:"https://royaleapi.com/static/img/cards-150/elite-barbarians.png"},
+  {n:"Hunter",i:"https://royaleapi.com/static/img/cards-150/hunter.png"},
+  {n:"Executioner",i:"https://royaleapi.com/static/img/cards-150/executioner.png"},
+  {n:"Bandit",i:"https://royaleapi.com/static/img/cards-150/bandit.png"},
+  {n:"Night Witch",i:"https://royaleapi.com/static/img/cards-150/night-witch.png"},
+  {n:"Bats",i:"https://royaleapi.com/static/img/cards-150/bats.png"},
+  {n:"Royal Ghost",i:"https://royaleapi.com/static/img/cards-150/royal-ghost.png"},
+  {n:"Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider.png"},
+  {n:"Zappies",i:"https://royaleapi.com/static/img/cards-150/zappies.png"},
+  {n:"Rascals",i:"https://royaleapi.com/static/img/cards-150/rascals.png"},
+  {n:"Cannon Cart",i:"https://royaleapi.com/static/img/cards-150/cannon-cart.png"},
+  {n:"Flying Machine",i:"https://royaleapi.com/static/img/cards-150/flying-machine.png"},
+  {n:"Tower Princess",i:"https://royaleapi.com/static/img/cards-150/tower-princess.png"},
+  {n:"Cannoneer",i:"https://royaleapi.com/static/img/cards-150/cannoneer.png"},
+  {n:"Dagger Duchess",i:"https://royaleapi.com/static/img/cards-150/dagger-duchess.png"},
+  {n:"Royal Chef",i:"https://royaleapi.com/static/img/cards-150/royal-chef.png"},
+  {n:"Golden Knight",i:"https://royaleapi.com/static/img/cards-150/golden-knight.png"},
+  {n:"Skeleton King",i:"https://royaleapi.com/static/img/cards-150/skeleton-king.png"},
+  {n:"Archer Queen",i:"https://royaleapi.com/static/img/cards-150/archer-queen.png"},
+  {n:"Mighty Miner",i:"https://royaleapi.com/static/img/cards-150/mighty-miner.png"},
+  {n:"Goblinstein",i:"https://royaleapi.com/static/img/cards-150/goblinstein.png"},
+  {n:"Little Prince",i:"https://royaleapi.com/static/img/cards-150/little-prince.png"},
+  {n:"Monk",i:"https://royaleapi.com/static/img/cards-150/monk.png"},
+  {n:"Arrows",i:"https://royaleapi.com/static/img/cards-150/arrows.png"},
+  {n:"Zap",i:"https://royaleapi.com/static/img/cards-150/zap.png"},
+  {n:"Fireball",i:"https://royaleapi.com/static/img/cards-150/fireball.png"},
+  {n:"Rocket",i:"https://royaleapi.com/static/img/cards-150/rocket.png"},
+  {n:"Lightning",i:"https://royaleapi.com/static/img/cards-150/lightning.png"},
+  {n:"Poison",i:"https://royaleapi.com/static/img/cards-150/poison.png"},
+  {n:"Freeze",i:"https://royaleapi.com/static/img/cards-150/freeze.png"},
+  {n:"Tornado",i:"https://royaleapi.com/static/img/cards-150/tornado.png"},
+  {n:"Barbarian Barrel",i:"https://royaleapi.com/static/img/cards-150/barbarian-barrel.png"},
+  {n:"The Log",i:"https://royaleapi.com/static/img/cards-150/the-log.png"},
+  {n:"Earthquake",i:"https://royaleapi.com/static/img/cards-150/earthquake.png"},
+  {n:"Graveyard",i:"https://royaleapi.com/static/img/cards-150/graveyard.png"},
+  {n:"Mirror",i:"https://royaleapi.com/static/img/cards-150/mirror.png"},
+  {n:"Royal Delivery",i:"https://royaleapi.com/static/img/cards-150/royal-delivery.png"},
+  {n:"Cannon",i:"https://royaleapi.com/static/img/cards-150/cannon.png"},
+  {n:"Goblin Hut",i:"https://royaleapi.com/static/img/cards-150/goblin-hut.png"},
+  {n:"Mortar",i:"https://royaleapi.com/static/img/cards-150/mortar.png"},
+  {n:"Bomb Tower",i:"https://royaleapi.com/static/img/cards-150/bomb-tower.png"},
+  {n:"Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla.png"},
+  {n:"Elixir Collector",i:"https://royaleapi.com/static/img/cards-150/elixir-collector.png"},
+  {n:"Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage.png"},
+  {n:"Tombstone",i:"https://royaleapi.com/static/img/cards-150/tombstone.png"}
+];
+
+let players = []; 
+let imposters = [];
+let index = 0;
+let card;
+
+// References
+const setupPanel = document.getElementById("setupPanel");
+const gamePanel = document.getElementById("game");
+const impostersSelect = document.getElementById("imposters");
+const namesContainer = document.getElementById("names");
+const playerCountSelect = document.getElementById("playerCount");
+const currentPlayerEl = document.getElementById("currentPlayer");
+const cardEl = document.getElementById("card");
+const backFace = document.getElementById("backFace");
+
+// --- Initialization ---
+function updateNames(){
+    const c = +playerCountSelect.value;
+    namesContainer.innerHTML="";
+    for(let i=1; i<=c; i++){
+        namesContainer.innerHTML += `
+        <div class="name-row">
+            <span>${i}.</span>
+            <input placeholder="Spieler ${i}">
+        </div>`;
+    }
+}
+
+function updateImposters(){
+    const c = +playerCountSelect.value;
+    const max = Math.floor(c/2);
+    impostersSelect.innerHTML = "";
+    for(let i=1; i<=max; i++){
+        impostersSelect.innerHTML += `<option>${i}</option>`;
+    }
+}
+
+updateNames();
+updateImposters();
+
+// --- Game Logic ---
+
+function start(){
+    // Gather names and Assign Random Colors
+    const inputs = [...document.querySelectorAll("#names input")];
+    
+    // Shuffle colors so they are random every game
+    const shuffledColors = shuffle([...playerColors]);
+
+    players = inputs.map((input, idx) => {
+        return {
+            name: input.value.trim() || input.placeholder,
+            // Use modulo in case more players than colors (loops back)
+            color: shuffledColors[idx % shuffledColors.length]
+        };
+    });
+
+    const impCount = +impostersSelect.value;
+    
+    // Select Game Card
+    card = cards[Math.floor(Math.random() * cards.length)];
+    
+    // Determine Imposters (shuffle player list, pick first X names)
+    const justNames = players.map(p => p.name);
+    imposters = shuffle([...justNames]).slice(0, impCount);
+    
+    index = 0;
+
+    // Transition UI
+    setupPanel.classList.add("hidden");
+    gamePanel.classList.remove("hidden");
+    
+    updateTurn();
+}
+
+function updateTurn(){
+    // Reset Card Flip
+    cardEl.classList.remove("flipped");
+
+    const p = players[index];
+    
+    // Apply Animation class to trigger fade/pop effect
+    currentPlayerEl.classList.remove("turn-change-anim");
+    void currentPlayerEl.offsetWidth; // trigger reflow
+    currentPlayerEl.classList.add("turn-change-anim");
+
+    // Apply Content and Color
+    currentPlayerEl.innerText = p.name;
+    currentPlayerEl.style.color = p.color;
+    currentPlayerEl.style.textShadow = `0 0 25px ${p.color}80`; // Add glow of same color
+}
+
+
+function next(){
+    if(index >= players.length - 1){
+        alert("Alle Spieler sind fertig! Startet die Diskussion!");
+        // Reset to Home
+        gamePanel.classList.add("hidden");
+        setupPanel.classList.remove("hidden");
+        setupPanel.style.opacity = 0;
+        setTimeout(() => setupPanel.style.opacity = 1, 100);
+        return;
+    }
+    
+    index++;
+    updateTurn();
+}
+
+
+// --- Card Flip Events ---
+const isTouch = 'ontouchstart' in window;
+
+if(isTouch){
+    cardEl.addEventListener("touchstart", flipOn);
+    cardEl.addEventListener("touchend", flipOff);
+} else {
+    cardEl.addEventListener("mousedown", flipOn);
+    cardEl.addEventListener("mouseup", flipOff);
+    cardEl.addEventListener("mouseleave", flipOff);
+}
+
+function flipOn(e){
+    e.preventDefault(); // prevents selection issues
+    cardEl.classList.add("flipped");
+    backFace.innerHTML = "";
+    
+    const currentPlayerName = players[index].name;
+
+    if(imposters.includes(currentPlayerName)){
+        backFace.innerHTML = `
+            <div class="imposter-card">
+                <div class="icon">☠️</div>
+                <div class="text">IMPOSTER</div>
+            </div>`;
+    } else {
+        backFace.innerHTML = `
+            <img src="${card.i}">
+            <div class="word-badge">${card.n}</div>`;
+    }
+}
+
+function flipOff(){
+    cardEl.classList.remove("flipped");
+}
+
+// --- Utility ---
+function shuffle(a){
+    for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+}
+</script>
+
+</body>
+</html>
