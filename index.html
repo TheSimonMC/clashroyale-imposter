@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clash Royale Wortspiel</title>
+<title>Clash Royale Imposter</title>
+<link rel="icon" type="image/png" href="https://cdns3.royaleapi.com/cdn-cgi/image/w=512,h=512,format=png,q=80/static/img/ui/league10.png">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 :root {
     --bg-dark: #0f0f13;
-    --panel-bg: rgba(30, 30, 45, 0.7);
+    --panel-bg: rgba(30, 30, 45, 0.8);
     --primary: #4fc3f7;
-    --accent: #ff0055;
     --text-main: #ffffff;
     --text-muted: #a0a0b0;
+    --hint-color: #f1c40f;
 }
 
 * { box-sizing: border-box; }
@@ -37,203 +38,151 @@ h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 28px;
+    font-size: 26px;
     text-align: center;
 }
 
-p { color: var(--text-muted); margin-bottom: 25px; font-size: 14px; text-align: center; }
-
-/* --- Setup Panel --- */
 .panel {
     background: var(--panel-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 30px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 25px;
     width: 100%;
     max-width: 450px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
 }
 
-label {
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.toggle-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.toggle-item {
+    background: rgba(0,0,0,0.3);
+    padding: 10px 5px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.toggle-item label {
+    font-size: 9px;
+    text-transform: uppercase;
+    margin-top: 5px;
+    color: var(--text-muted);
+}
+
+label.section-label {
     display: block;
     margin-top: 15px;
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--primary);
     font-weight: 600;
-    text-align: left;
 }
 
 select, input {
     width: 100%;
-    padding: 12px 15px;
-    margin-top: 8px;
+    padding: 12px;
+    margin-top: 5px;
     border-radius: 12px;
-    border: 2px solid rgba(255,255,255,0.05);
-    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.4);
     color: white;
     font-family: inherit;
-    font-size: 14px;
-    transition: 0.3s;
     outline: none;
 }
 
-select:focus, input:focus {
-    border-color: var(--primary);
-    background: rgba(0,0,0,0.5);
-}
+.name-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.name-row span { width: 20px; font-size: 12px; color: var(--text-muted); }
 
-.name-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-}
-
-.name-row span {
-    width: 20px;
-    font-weight: bold;
-    color: var(--text-muted);
-}
-
-/* --- Buttons --- */
 button {
-    margin-top: 30px;
+    margin-top: 25px;
     width: 100%;
     padding: 16px;
     font-size: 16px;
     font-weight: 800;
     border: none;
-    border-radius: 12px;
+    border-radius: 15px;
     background: linear-gradient(135deg, #4fc3f7, #0288d1);
     color: white;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    box-shadow: 0 5px 20px rgba(79, 195, 247, 0.4);
 }
 
-button:active { transform: scale(0.97); }
+#game { width: 100%; max-width: 450px; text-align: center; }
 
-/* --- Game Area --- */
-#game {
-    width: 100%;
-    max-width: 450px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Player Name Animation */
 #currentPlayer {
-    font-size: 32px;
-    margin: 10px 0;
-    text-shadow: 0 0 20px rgba(0,0,0,0.8);
-    transition: color 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-size: 36px;
+    margin: 15px 0;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-.turn-change-anim {
-    animation: popIn 0.4s ease forwards;
-}
-
-@keyframes popIn {
-    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* --- Card Styles --- */
-.card-container {
-    width: 220px;
-    height: 300px;
-    margin: 20px auto;
-    perspective: 1000px;
-}
-
+.card-container { width: 220px; height: 310px; margin: 20px auto; perspective: 1000px; }
 .card {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    border-radius: 18px;
-    transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    width: 100%; height: 100%; position: relative; border-radius: 20px;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-style: preserve-3d;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    cursor: pointer;
 }
-
 .card.flipped { transform: rotateY(180deg); }
 
 .face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 4px solid #1a1a2e;
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 20px; overflow: hidden;
+    border: 5px solid rgba(255,255,255,0.1);
 }
 
 .front {
-    background: #1a1a2e;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: #333;
+    display: flex; align-items: center; justify-content: center;
+    transition: background-color 0.4s ease;
 }
+.front img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: luminosity; opacity: 0.7; }
 
-.front img {
-    opacity: 0.8;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.back {
-    transform: rotateY(180deg);
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.back img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+.back { transform: rotateY(180deg); background: #000; display: flex; align-items: center; justify-content: center; }
+.back img { width: 100%; height: 100%; object-fit: cover; }
 
 .word-badge {
-    position: absolute;
-    bottom: 15px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 16px;
+    position: absolute; bottom: 15px; background: rgba(0,0,0,0.9);
+    color: #fff; padding: 10px 20px; border-radius: 30px; font-weight: 700;
     border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* Imposter Style */
 .imposter-card {
-    background: radial-gradient(circle, #8a0000, #200000);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: #ff4d4d;
-    text-shadow: 0 0 10px #ff0000;
+    background: radial-gradient(circle, #ff0044, #330000);
+    width: 100%; height: 100%; display: flex; align-items: center;
+    justify-content: center; flex-direction: column;
+    padding: 20px;
+    text-align: center;
 }
 
-.imposter-card .icon { font-size: 60px; margin-bottom: 15px; }
-.imposter-card .text { font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+.imposter-hint-box {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0,0,0,0.5);
+    border: 1px dashed var(--hint-color);
+    border-radius: 10px;
+    color: var(--hint-color);
+    font-size: 13px;
+    line-height: 1.3;
+}
 
 .hidden { display: none !important; }
 </style>
@@ -241,21 +190,37 @@ button:active { transform: scale(0.97); }
 
 <body>
 
-<h1>Clash Royale <span style="color:var(--primary)">Secret</span></h1>
-<p id="instructionText">Halte die Karte gedrückt, um deine Rolle zu sehen</p>
+<h1>Clash Royale <span style="color:var(--primary)">Imposter</span></h1>
 
 <div class="panel" id="setupPanel">
-    <label>Spieleranzahl</label>
-    <select id="playerCount" onchange="updateNames(); updateImposters();">
-        <option>3</option><option>4</option><option>5</option>
-        <option selected>6</option>
-        <option>7</option><option>8</option>
-    </select>
+    <div class="settings-grid">
+        <div>
+            <label class="section-label">Spieler</label>
+            <select id="playerCount" onchange="updateNames(); updateImposters();"></select>
+        </div>
+        <div>
+            <label class="section-label">Imposter</label>
+            <select id="imposters"></select>
+        </div>
+    </div>
 
-    <label>Anzahl Imposter</label>
-    <select id="imposters"></select>
+    <label class="section-label">Karten-Pool</label>
+    <div class="toggle-container">
+        <div class="toggle-item">
+            <input type="checkbox" id="useEvo" checked>
+            <label for="useEvo">Evos</label>
+        </div>
+        <div class="toggle-item">
+            <input type="checkbox" id="useChampions" checked>
+            <label for="useChampions">Champs</label>
+        </div>
+        <div class="toggle-item">
+            <input type="checkbox" id="useHeroes" checked>
+            <label for="useHeroes">Heroes</label>
+        </div>
+    </div>
 
-    <label>Namen eingeben</label>
+    <label class="section-label">Spielernamen</label>
     <div id="names"></div>
 
     <button onclick="start()">Spiel Starten</button>
@@ -263,271 +228,258 @@ button:active { transform: scale(0.97); }
 
 <div id="game" class="hidden">
     <h2 id="currentPlayer"></h2>
-
     <div class="card-container">
         <div id="card" class="card">
-            <div class="face front">
-                <img src="https://static.wikia.nocookie.net/clashroyale/images/3/3a/MysteryCard.png/revision/latest/thumbnail/width/720/height/900?cb=20171212213717" 
-                style="width: 100%; height: 100%; object-fit: cover;"> 
+            <div class="face front" id="cardFront">
+                <img src="https://static.wikia.nocookie.net/clashroyale/images/3/3a/MysteryCard.png/revision/latest?cb=20171212213717"> 
             </div>
             <div class="face back" id="backFace"></div>
         </div>
     </div>
-
-    <p style="margin-top:10px; opacity:0.6;">(Gedrückt halten)</p>
+    <p style="opacity:0.5; font-size:12px;">Gedrückt halten zum Ansehen</p>
     <button onclick="next()" id="nextBtn">Nächster Spieler</button>
 </div>
 
 <script>
-// --- Data & Config ---
-const playerColors = [
-    "#FF4757", // Red
-    "#2ED573", // Green
-    "#1E90FF", // Blue
-    "#FFA502", // Orange
-    "#E056FD", // Purple
-    "#F1C40F", // Yellow
-    "#00D2D3", // Cyan
-    "#FF6B81"  // Pink
+const playerColors = ["#FF4757", "#2ED573", "#1E90FF", "#FFA502", "#E056FD", "#F1C40F", "#00D2D3", "#FF6B81"];
+
+const baseCards = [
+    {n:"Knight",i:"https://royaleapi.com/static/img/cards-150/knight.png", h:["Gewöhnlich", "Mini Tank", "3 Elixir", "Defensiv", "Kein Spell"]},
+    {n:"Archers",i:"https://royaleapi.com/static/img/cards-150/archers.png", h:["Duo", "Aufteilbar", "3 Elixir", "Fernkampf", "Gewöhnlich", "Kein Spell"]},
+    {n:"Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins.png", h:["Gewöhnlich", "Schnell", "Quartett", "Gewöhnlich", "Kein Spell"]},
+    {n:"Giant",i:"https://royaleapi.com/static/img/cards-150/giant.png", h:["Tank", "Langsam", "Kein Evo", "5 Elixir", "Selten", "Groß", "Kein Spell"]},
+    {n:"P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka.png", h:["Groß", "Schwer", "Langsam", "Episch", "Kein Spell"]},
+    {n:"Minions",i:"https://royaleapi.com/static/img/cards-150/minions.png", h:["Luft", "Trio", "3 Elixir", "Gewöhnlich", "Kein Spell"]},
+    {n:"Balloon",i:"https://royaleapi.com/static/img/cards-150/balloon.png", h:["Bombe", "Tank", "Luft", "5 Elixir", "Episch", "Kein Spell"]},
+    {n:"Witch",i:"https://royaleapi.com/static/img/cards-150/witch.png", h:["Skelette", "Splash", "5 Elixir", "Spawner", "Magie", "Fernkampf", "Episch", "Kein Spell"]},
+    {n:"Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians.png", h:["5 Elixir", "Swarm", "Nahkampf", "Gewöhnlich", "Kein Spell"]},
+    {n:"Golem",i:"https://royaleapi.com/static/img/cards-150/golem.png", h:["Episch", "Groß", "Tank", "Langsam", "Kein Spell"]},
+    {n:"Skeletons",i:"https://royaleapi.com/static/img/cards-150/skeletons.png", h:["1 Elixir", "Defensiv", "Skelette", "Kein Spell"]},
+    {n:"Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie.png", h:["Ginger", "Mini Tank", "4 Elixir", "Selten", "Hat Evo", "Kein Spell"]},
+    {n:"Skeleton Army",i:"https://royaleapi.com/static/img/cards-150/skeleton-army.png", h:["Swarm", "3 Elixir", "Episch", "Hat Evo", "Kein Spell"]},
+    {n:"Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber.png", h:["Bombe", "Splash", "Kein Spell", "Hat Evo", "3 Elixir"]},
+    {n:"Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer.png", h:["Fernkampf", "Hat Evo", "Kein Spell", "4 Elixir"]},
+    {n:"Baby Dragon",i:"https://royaleapi.com/static/img/cards-150/baby-dragon.png", h:["Splash", "4 Elixir", "Kein Spell", "Episch", "Hat Evo", "Luft"]},
+    {n:"Prince",i:"https://royaleapi.com/static/img/cards-150/prince.png", h:["Charge", "Kein Evo", "5 Elixir", "Episch", "Kein Spell"]},
+{n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png", h:["Splash", "Fernkampf", "Selten", "5 Elixir", "Kein Spell", "Magie"]},
+    {n:"Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka.png", h:["Nahkampf", "Schnell", "4 Elixir", "Selten", "Viel Schaden", "Kein Spell"]},
+    {n:"Spear Goblins",i:"https://royaleapi.com/static/img/cards-150/spear-goblins.png", h:["Trio", "Fernkampf", "2 Elixir", "Gewöhnlich", "Kein Spell"]},
+    {n:"Giant Skeleton",i:"https://royaleapi.com/static/img/cards-150/giant-skeleton.png", h:["Bombe", "Tank", "6 Elixir", "Episch", "Kein Spell", "Groß"]},
+    {n:"Hog Rider",i:"https://royaleapi.com/static/img/cards-150/hog-rider.png", h:["Schnell", "Gebäude", "4 Elixir", "Selten", "Kein Spell"]},
+    {n:"Minion Horde",i:"https://royaleapi.com/static/img/cards-150/minion-horde.png", h:["Luft", "Swarm", "5 Elixir", "Gewöhnlich", "Kein Spell"]},
+    {n:"Ice Wizard",i:"https://royaleapi.com/static/img/cards-150/ice-wizard.png", h:["Legendär", "Slow", "Splash", "3 Elixir", "Fernkampf"]},
+    {n:"Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant.png", h:["Fernkampf", "Tank", "6 Elixir", "Gewöhnlich", "Gebäude"]},
+    {n:"Guards",i:"https://royaleapi.com/static/img/cards-150/guards.png", h:["Schild", "Trio", "3 Elixir", "Episch", "Nahkampf"]},
+    {n:"Princess",i:"https://royaleapi.com/static/img/cards-150/princess.png", h:["Fernkampf", "Legendär", "Splash", "3 Elixir", "Wenig HP"]},
+    {n:"Dark Prince",i:"https://royaleapi.com/static/img/cards-150/dark-prince.png", h:["Schild", "Charge", "4 Elixir", "Episch", "Splash"]},
+    {n:"Three Musketeers",i:"https://royaleapi.com/static/img/cards-150/three-musketeers.png", h:["Trio", "9 Elixir", "Fernkampf", "Selten", "Teuer"]},
+    {n:"Lava Hound",i:"https://royaleapi.com/static/img/cards-150/lava-hound.png", h:["Luft", "Tank", "7 Elixir", "Legendär", "Langsam"]},
+    {n:"Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit.png", h:["1 Elixir", "Freeze", "Gewöhnlich", "Springt"]},
+    {n:"Fire Spirit",i:"https://royaleapi.com/static/img/cards-150/fire-spirit.png", h:["1 Elixir", "Splash", "Gewöhnlich", "Springt"]},
+    {n:"Miner",i:"https://royaleapi.com/static/img/cards-150/miner.png", h:["Gräbt", "Legendär", "3 Elixir", "Überall platzierbar"]},
+    {n:"Sparky",i:"https://royaleapi.com/static/img/cards-150/sparky.png", h:["Viel Schaden", "6 Elixir", "Legendär", "Splash", "Langsam"]},
+    {n:"Bowler",i:"https://royaleapi.com/static/img/cards-150/bowler.png", h:["Splash", "Rückstoß", "5 Elixir", "Episch", "Boden"]},
+    {n:"Lumberjack",i:"https://royaleapi.com/static/img/cards-150/lumberjack.png", h:["Schnell", "Rage", "4 Elixir", "Legendär", "Nahkampf"]},
+    {n:"Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram.png", h:["Gebäude", "Charge", "4 Elixir", "Selten", "Duo"]},
+    {n:"Inferno Dragon",i:"https://royaleapi.com/static/img/cards-150/inferno-dragon.png", h:["Luft", "Viel Schaden", "4 Elixir", "Legendär", "Einzelziel"]},
+    {n:"Ice Golem",i:"https://royaleapi.com/static/img/cards-150/ice-golem.png", h:["Tank", "Slow", "2 Elixir", "Selten", "Boden"]},
+    {n:"Mega Minion",i:"https://royaleapi.com/static/img/cards-150/mega-minion.png", h:["Luft", "Einzelziel", "3 Elixir", "Selten", "Gepanzert"]},
+    {n:"Dart Goblin",i:"https://royaleapi.com/static/img/cards-150/dart-goblin.png", h:["Schnell", "Fernkampf", "3 Elixir", "Selten", "Wenig HP"]},
+    {n:"Goblin Gang",i:"https://royaleapi.com/static/img/cards-150/goblin-gang.png", h:["Swarm", "3 Elixir", "Gewöhnlich", "Mischung"]},
+    {n:"Electro Wizard",i:"https://royaleapi.com/static/img/cards-150/electro-wizard.png", h:["Stun", "Legendär", "4 Elixir", "Fernkampf", "Zwei Ziele"]},
+    {n:"Elite Barbarians",i:"https://royaleapi.com/static/img/cards-150/elite-barbarians.png", h:["Duo", "Schnell", "6 Elixir", "Gewöhnlich", "Nahkampf"]},
+    {n:"Hunter",i:"https://royaleapi.com/static/img/cards-150/hunter.png", h:["Fernkampf", "Splash", "4 Elixir", "Episch", "Verteidigung"]},
+    {n:"Executioner",i:"https://royaleapi.com/static/img/cards-150/executioner.png", h:["Splash", "5 Elixir", "Episch", "Axt", "Fernkampf"]},
+    {n:"Bandit",i:"https://royaleapi.com/static/img/cards-150/bandit.png", h:["Dash", "3 Elixir", "Legendär", "Nahkampf", "Unverwundbar"]},
+    {n:"Night Witch",i:"https://royaleapi.com/static/img/cards-150/night-witch.png", h:["Beschwörer", "Nahkampf", "4 Elixir", "Legendär", "Fledermäuse"]},
+    {n:"Bats",i:"https://royaleapi.com/static/img/cards-150/bats.png", h:["Luft", "Swarm", "2 Elixir", "Gewöhnlich", "Schnell"]},
+    {n:"Royal Ghost",i:"https://royaleapi.com/static/img/cards-150/royal-ghost.png", h:["Unsichtbar", "Splash", "3 Elixir", "Legendär", "Nahkampf"]},
+    {n:"Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider.png", h:["Snare", "Gebäude", "5 Elixir", "Legendär", "Charge"]},
+    {n:"Zappies",i:"https://royaleapi.com/static/img/cards-150/zappies.png", h:["Stun", "Trio", "4 Elixir", "Selten", "Fernkampf"]},
+    {n:"Rascals",i:"https://royaleapi.com/static/img/cards-150/rascals.png", h:["Trio", "5 Elixir", "Gewöhnlich", "Tank & Ranged"]},
+    {n:"Cannon Cart",i:"https://royaleapi.com/static/img/cards-150/cannon-cart.png", h:["Gebäude", "Schild", "5 Elixir", "Episch", "Fernkampf"]},
+    {n:"Flying Machine",i:"https://royaleapi.com/static/img/cards-150/flying-machine.png", h:["Luft", "Fernkampf", "4 Elixir", "Selten", "Schnell"]},
+    {n:"Tower Princess",i:"https://royaleapi.com/static/img/cards-150/tower-princess.png", h:["Tower", "Fernkampf", "Standard", "Verteidigung"]},
+    {n:"Cannoneer",i:"https://royaleapi.com/static/img/cards-150/cannoneer.png", h:["Tower", "Viel Schaden", "Langsam", "Verteidigung"]},
+    {n:"Dagger Duchess",i:"https://royaleapi.com/static/img/cards-150/dagger-duchess.png", h:["Tower", "Munition", "Schnell", "Verteidigung"]},
+    {n:"Arrows",i:"https://royaleapi.com/static/img/cards-150/arrows.png", h:["Spell", "Splash", "3 Elixir", "Gewöhnlich", "Großer Radius"]},
+    {n:"Zap",i:"https://royaleapi.com/static/img/cards-150/zap.png", h:["Spell", "Stun", "2 Elixir", "Gewöhnlich", "Schnell"]},
+    {n:"Fireball",i:"https://royaleapi.com/static/img/cards-150/fireball.png", h:["Spell", "Splash", "4 Elixir", "Selten", "Rückstoß"]},
+    {n:"Rocket",i:"https://royaleapi.com/static/img/cards-150/rocket.png", h:["Spell", "Viel Schaden", "6 Elixir", "Selten", "Kleiner Radius"]},
+    {n:"Lightning",i:"https://royaleapi.com/static/img/cards-150/lightning.png", h:["Spell", "Drei Ziele", "6 Elixir", "Episch", "Stun"]},
+    {n:"Poison",i:"https://royaleapi.com/static/img/cards-150/poison.png", h:["Spell", "Zeit", "4 Elixir", "Episch", "Splash"]},
+    {n:"Freeze",i:"https://royaleapi.com/static/img/cards-150/freeze.png", h:["Spell", "Freeze", "4 Elixir", "Episch", "Kein Schaden"]},
+    {n:"Tornado",i:"https://royaleapi.com/static/img/cards-150/tornado.png", h:["Spell", "Zieht", "3 Elixir", "Episch", "Splash"]},
+    {n:"Barbarian Barrel",i:"https://royaleapi.com/static/img/cards-150/barbarian-barrel.png", h:["Spell", "Einheit", "2 Elixir", "Episch", "Boden"]},
+    {n:"The Log",i:"https://royaleapi.com/static/img/cards-150/the-log.png", h:["Spell", "Rückstoß", "2 Elixir", "Legendär", "Boden"]},
+    {n:"Earthquake",i:"https://royaleapi.com/static/img/cards-150/earthquake.png", h:["Spell", "Gebäude", "3 Elixir", "Selten", "Slow"]},
+    {n:"Graveyard",i:"https://royaleapi.com/static/img/cards-150/graveyard.png", h:["Spell", "Skelette", "5 Elixir", "Legendär", "Überall"]},
+    {n:"Mirror",i:"https://royaleapi.com/static/img/cards-150/mirror.png", h:["Spell", "Kopie", "Variable", "Episch", "Kein eigener Effekt"]},
+    {n:"Royal Delivery",i:"https://royaleapi.com/static/img/cards-150/royal-delivery.png", h:["Spell", "Einheit", "3 Elixir", "Gewöhnlich", "Splash"]},
+    {n:"Cannon",i:"https://royaleapi.com/static/img/cards-150/cannon.png", h:["Gebäude", "3 Elixir", "Gewöhnlich", "Boden", "Verteidigung"]},
+    {n:"Goblin Hut",i:"https://royaleapi.com/static/img/cards-150/goblin-hut.png", h:["Gebäude", "Spawner", "5 Elixir", "Selten", "Fernkampf"]},
+    {n:"Mortar",i:"https://royaleapi.com/static/img/cards-150/mortar.png", h:["Gebäude", "Fernkampf", "4 Elixir", "Gewöhnlich", "Splash"]},
+    {n:"Bomb Tower",i:"https://royaleapi.com/static/img/cards-150/bomb-tower.png", h:["Gebäude", "Splash", "4 Elixir", "Selten", "Boden"]},
+    {n:"Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla.png", h:["Gebäude", "Versteckt", "4 Elixir", "Gewöhnlich", "Luft & Boden"]},
+    {n:"Elixir Collector",i:"https://royaleapi.com/static/img/cards-150/elixir-collector.png", h:["Gebäude", "Elixir", "6 Elixir", "Selten", "Produktion"]},
+    {n:"Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage.png", h:["Gebäude", "Einheit", "4 Elixir", "Selten", "Nahkampf"]},
+    {n:"Tombstone",i:"https://royaleapi.com/static/img/cards-150/tombstone.png", h:["Gebäude", "Spawner", "3 Elixir", "Selten", "Skelette"]}
 ];
 
-const cards = [
-  {n:"Knight",i:"https://royaleapi.com/static/img/cards-150/knight.png"},
-  {n:"Archers",i:"https://royaleapi.com/static/img/cards-150/archers.png"},
-  {n:"Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins.png"},
-  {n:"Giant",i:"https://royaleapi.com/static/img/cards-150/giant.png"},
-  {n:"P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka.png"},
-  {n:"Minions",i:"https://royaleapi.com/static/img/cards-150/minions.png"},
-  {n:"Balloon",i:"https://royaleapi.com/static/img/cards-150/balloon.png"},
-  {n:"Witch",i:"https://royaleapi.com/static/img/cards-150/witch.png"},
-  {n:"Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians.png"},
-  {n:"Golem",i:"https://royaleapi.com/static/img/cards-150/golem.png"},
-  {n:"Skeletons",i:"https://royaleapi.com/static/img/cards-150/skeletons.png"},
-  {n:"Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie.png"},
-  {n:"Skeleton Army",i:"https://royaleapi.com/static/img/cards-150/skeleton-army.png"},
-  {n:"Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber.png"},
-  {n:"Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer.png"},
-  {n:"Baby Dragon",i:"https://royaleapi.com/static/img/cards-150/baby-dragon.png"},
-  {n:"Prince",i:"https://royaleapi.com/static/img/cards-150/prince.png"},
-  {n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png"},
-  {n:"Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka.png"},
-  {n:"Spear Goblins",i:"https://royaleapi.com/static/img/cards-150/spear-goblins.png"},
-  {n:"Giant Skeleton",i:"https://royaleapi.com/static/img/cards-150/giant-skeleton.png"},
-  {n:"Hog Rider",i:"https://royaleapi.com/static/img/cards-150/hog-rider.png"},
-  {n:"Minion Horde",i:"https://royaleapi.com/static/img/cards-150/minion-horde.png"},
-  {n:"Ice Wizard",i:"https://royaleapi.com/static/img/cards-150/ice-wizard.png"},
-  {n:"Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant.png"},
-  {n:"Guards",i:"https://royaleapi.com/static/img/cards-150/guards.png"},
-  {n:"Princess",i:"https://royaleapi.com/static/img/cards-150/princess.png"},
-  {n:"Dark Prince",i:"https://royaleapi.com/static/img/cards-150/dark-prince.png"},
-  {n:"Three Musketeers",i:"https://royaleapi.com/static/img/cards-150/three-musketeers.png"},
-  {n:"Lava Hound",i:"https://royaleapi.com/static/img/cards-150/lava-hound.png"},
-  {n:"Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit.png"},
-  {n:"Fire Spirit",i:"https://royaleapi.com/static/img/cards-150/fire-spirit.png"},
-  {n:"Miner",i:"https://royaleapi.com/static/img/cards-150/miner.png"},
-  {n:"Sparky",i:"https://royaleapi.com/static/img/cards-150/sparky.png"},
-  {n:"Bowler",i:"https://royaleapi.com/static/img/cards-150/bowler.png"},
-  {n:"Lumberjack",i:"https://royaleapi.com/static/img/cards-150/lumberjack.png"},
-  {n:"Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram.png"},
-  {n:"Inferno Dragon",i:"https://royaleapi.com/static/img/cards-150/inferno-dragon.png"},
-  {n:"Ice Golem",i:"https://royaleapi.com/static/img/cards-150/ice-golem.png"},
-  {n:"Mega Minion",i:"https://royaleapi.com/static/img/cards-150/mega-minion.png"},
-  {n:"Dart Goblin",i:"https://royaleapi.com/static/img/cards-150/dart-goblin.png"},
-  {n:"Goblin Gang",i:"https://royaleapi.com/static/img/cards-150/goblin-gang.png"},
-  {n:"Electro Wizard",i:"https://royaleapi.com/static/img/cards-150/electro-wizard.png"},
-  {n:"Elite Barbarians",i:"https://royaleapi.com/static/img/cards-150/elite-barbarians.png"},
-  {n:"Hunter",i:"https://royaleapi.com/static/img/cards-150/hunter.png"},
-  {n:"Executioner",i:"https://royaleapi.com/static/img/cards-150/executioner.png"},
-  {n:"Bandit",i:"https://royaleapi.com/static/img/cards-150/bandit.png"},
-  {n:"Night Witch",i:"https://royaleapi.com/static/img/cards-150/night-witch.png"},
-  {n:"Bats",i:"https://royaleapi.com/static/img/cards-150/bats.png"},
-  {n:"Royal Ghost",i:"https://royaleapi.com/static/img/cards-150/royal-ghost.png"},
-  {n:"Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider.png"},
-  {n:"Zappies",i:"https://royaleapi.com/static/img/cards-150/zappies.png"},
-  {n:"Rascals",i:"https://royaleapi.com/static/img/cards-150/rascals.png"},
-  {n:"Cannon Cart",i:"https://royaleapi.com/static/img/cards-150/cannon-cart.png"},
-  {n:"Flying Machine",i:"https://royaleapi.com/static/img/cards-150/flying-machine.png"},
-  {n:"Tower Princess",i:"https://royaleapi.com/static/img/cards-150/tower-princess.png"},
-  {n:"Cannoneer",i:"https://royaleapi.com/static/img/cards-150/cannoneer.png"},
-  {n:"Dagger Duchess",i:"https://royaleapi.com/static/img/cards-150/dagger-duchess.png"},
-  {n:"Royal Chef",i:"https://royaleapi.com/static/img/cards-150/royal-chef.png"},
-  {n:"Golden Knight",i:"https://royaleapi.com/static/img/cards-150/golden-knight.png"},
-  {n:"Skeleton King",i:"https://royaleapi.com/static/img/cards-150/skeleton-king.png"},
-  {n:"Archer Queen",i:"https://royaleapi.com/static/img/cards-150/archer-queen.png"},
-  {n:"Mighty Miner",i:"https://royaleapi.com/static/img/cards-150/mighty-miner.png"},
-  {n:"Goblinstein",i:"https://royaleapi.com/static/img/cards-150/goblinstein.png"},
-  {n:"Little Prince",i:"https://royaleapi.com/static/img/cards-150/little-prince.png"},
-  {n:"Monk",i:"https://royaleapi.com/static/img/cards-150/monk.png"},
-  {n:"Arrows",i:"https://royaleapi.com/static/img/cards-150/arrows.png"},
-  {n:"Zap",i:"https://royaleapi.com/static/img/cards-150/zap.png"},
-  {n:"Fireball",i:"https://royaleapi.com/static/img/cards-150/fireball.png"},
-  {n:"Rocket",i:"https://royaleapi.com/static/img/cards-150/rocket.png"},
-  {n:"Lightning",i:"https://royaleapi.com/static/img/cards-150/lightning.png"},
-  {n:"Poison",i:"https://royaleapi.com/static/img/cards-150/poison.png"},
-  {n:"Freeze",i:"https://royaleapi.com/static/img/cards-150/freeze.png"},
-  {n:"Tornado",i:"https://royaleapi.com/static/img/cards-150/tornado.png"},
-  {n:"Barbarian Barrel",i:"https://royaleapi.com/static/img/cards-150/barbarian-barrel.png"},
-  {n:"The Log",i:"https://royaleapi.com/static/img/cards-150/the-log.png"},
-  {n:"Earthquake",i:"https://royaleapi.com/static/img/cards-150/earthquake.png"},
-  {n:"Graveyard",i:"https://royaleapi.com/static/img/cards-150/graveyard.png"},
-  {n:"Mirror",i:"https://royaleapi.com/static/img/cards-150/mirror.png"},
-  {n:"Royal Delivery",i:"https://royaleapi.com/static/img/cards-150/royal-delivery.png"},
-  {n:"Cannon",i:"https://royaleapi.com/static/img/cards-150/cannon.png"},
-  {n:"Goblin Hut",i:"https://royaleapi.com/static/img/cards-150/goblin-hut.png"},
-  {n:"Mortar",i:"https://royaleapi.com/static/img/cards-150/mortar.png"},
-  {n:"Bomb Tower",i:"https://royaleapi.com/static/img/cards-150/bomb-tower.png"},
-  {n:"Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla.png"},
-  {n:"Elixir Collector",i:"https://royaleapi.com/static/img/cards-150/elixir-collector.png"},
-  {n:"Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage.png"},
-  {n:"Tombstone",i:"https://royaleapi.com/static/img/cards-150/tombstone.png"}
+const evoCards = [
+    {n:"Evo Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians-ev1.png", h:["Evo", "Swarm", "Wut", "Nahkampf", "5 Elixir"]},
+    {n:"Evo Skeleton",i:"https://royaleapi.com/static/img/cards-150/skeletons-ev1.png", h:["Evo", "Vermehrung", "1 Elixir", "Skelette", "Nahkampf"]},
+    {n:"Evo Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant-ev1.png", h:["Evo", "Tank", "Fernkampf", "6 Elixir", "Rückstoß"]},
+    {n:"Evo Firecracker",i:"https://royaleapi.com/static/img/cards-150/firecracker-ev1.png", h:["Evo", "Splash", "Fernkampf", "3 Elixir", "Gift-Effekt"]},
+    {n:"Evo Knight",i:"https://royaleapi.com/static/img/cards-150/knight-ev1.png", h:["Evo", "Mini Tank", "3 Elixir", "Schild-Effekt", "Nahkampf"]},
+    {n:"Evo Recruits",i:"https://royaleapi.com/static/img/cards-150/royal-recruits-ev1.png", h:["Evo", "Swarm", "Schild", "Charge", "7 Elixir"]},
+    {n:"Evo bats",i:"https://royaleapi.com/static/img/cards-150/bats-ev1.png", h:["Evo", "Luft", "Heilung", "2 Elixir", "Schnell"]},
+    {n:"Evo Archers",i:"https://royaleapi.com/static/img/cards-150/archers-ev1.png", h:["Evo", "Duo", "Fernkampf", "3 Elixir", "Doppel-Schuss"]},
+    {n:"Evo Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit-ev1.png", h:["Evo", "Freeze", "1 Elixir", "Splash", "Mehrere Ziele"]},
+    {n:"Evo Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie-ev1.png", h:["Evo", "Splash", "Anziehung", "4 Elixir", "Nahkampf"]},
+    {n:"Evo Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber-ev1.png", h:["Evo", "Splash", "Abpraller", "2 Elixir", "Bombe"]},
+    {n:"Evo Wall Breakers",i:"https://royaleapi.com/static/img/cards-150/wall-breakers-ev1.png", h:["Evo", "Gebäude", "Explosion", "2 Elixir", "Schnell"]},
+    {n:"Evo Zap",i:"https://royaleapi.com/static/img/cards-150/zap-ev1.png", h:["Evo", "Stun", "2 Elixir", "Mehrfach", "Spell"]},
+    {n:"Evo Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla-ev1.png", h:["Evo", "Gebäude", "Schockwelle", "4 Elixir", "Verteidigung"]},
+    {n:"Evo Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram-ev1.png", h:["Evo", "Gebäude", "Rückstoß", "4 Elixir", "Charge"]},
+    {n:"Evo Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard-ev1.png", h:["Evo", "Splash", "Schild", "5 Elixir", "Explosion"]},
+    {n:"Evo Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins-ev1.png", h:["Evo", "Schnell", "Wurf", "2 Elixir", "Swarm"]},
+    {n:"Evo Giant",i:"https://royaleapi.com/static/img/cards-150/giant-ev1.png", h:["Evo", "Tank", "Reflexion", "5 Elixir", "Boden"]},
+    {n:"Evo Goblin Drill",i:"https://royaleapi.com/static/img/cards-150/goblin-drill-ev1.png", h:["Evo", "Gebäude", "Untergrund", "4 Elixir", "Spawner"]},
+    {n:"Evo Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer-ev1.png", h:["Evo", "Fernkampf", "Sniper", "4 Elixir", "Viel Schaden"]},
+    {n:"Evo Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage-ev1.png", h:["Evo", "Gebäude", "Einheit", "Nahkampf", "4 Elixir"]},
+    {n:"Evo P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka-ev1.png", h:["Evo", "Nahkampf", "Heilung", "7 Elixir", "Viel Schaden"]},
+    {n:"Evo Mega Knight",i:"https://royaleapi.com/static/img/cards-150/mega-knight-ev1.png", h:["Evo", "Splash", "Rückstoß", "7 Elixir", "Sprung"]},
+    {n:"Evo Electro Dragon",i:"https://royaleapi.com/static/img/cards-150/electro-dragon-ev1.png", h:["Evo", "Luft", "Ketten", "5 Elixir", "Splash"]},
+    {n:"Evo Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider-ev1.png", h:["Evo", "Gebäude", "Snare", "5 Elixir", "Charge"]}
+];
+
+const championCards = [
+    {n:"Golden Knight",i:"https://royaleapi.com/static/img/cards-150/golden-knight.png", h:["Champion", "Dash", "4 Elixir", "Nahkampf", "Fähigkeit"]},
+    {n:"Skeleton King",i:"https://royaleapi.com/static/img/cards-150/skeleton-king.png", h:["Champion", "Beschwörer", "4 Elixir", "Splash", "Seelen"]},
+    {n:"Archer Queen",i:"https://royaleapi.com/static/img/cards-150/archer-queen.png", h:["Champion", "Unsichtbar", "5 Elixir", "Fernkampf", "Viel Schaden"]},
+    {n:"Mighty Miner",i:"https://royaleapi.com/static/img/cards-150/mighty-miner.png", h:["Champion", "Spurwechsel", "4 Elixir", "Tank", "Bombe"]},
+    {n:"Monk",i:"https://royaleapi.com/static/img/cards-150/monk.png", h:["Champion", "Reflektion", "5 Elixir", "Nahkampf", "Combo"]},
+    {n:"Little Prince",i:"https://royaleapi.com/static/img/cards-150/little-prince.png", h:["Champion", "Beschwörer", "3 Elixir", "Fernkampf", "Wächter"]},
+    {n:"Boss Bandit",i:"https://royaleapi.com/static/img/cards-150/boss-bandit.png", h:["Champion", "Dash", "Variable", "Nahkampf", "Event"]},
+    {n:"Goblinstein",i:"https://royaleapi.com/static/img/cards-150/goblinstein.png", h:["Champion", "Duo", "Elektro", "5 Elixir", "Fähigkeit"]}
+];
+
+const heroCards = [
+    {n:"Hero Knight",i:"https://royaleapi.com/static/img/cards-150/knight-hero.png", h:["Gold", "Viel HP", "Nahkampf", "Blau", "Spezial", "Mini Tank"]}, 
+    {n:"Hero Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka-hero.png", h:["Gold", "Viel Schaden", "Nahkampf", "Spezial", "Klein", "Mini Tank"]},
+    {n:"Hero Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer-hero.png", h:["Gold", "Sniper", "Fernkampf", "Spezial", "Viel Schaden"]},
+    {n:"Hero Giant",i:"https://royaleapi.com/static/img/cards-150/giant-hero.png", h:["Gold", "Tank", "Spezial", "Groß"]}
 ];
 
 let players = []; 
 let imposters = [];
 let index = 0;
-let card;
+let selectedCard;
 
-// References
-const setupPanel = document.getElementById("setupPanel");
-const gamePanel = document.getElementById("game");
-const impostersSelect = document.getElementById("imposters");
-const namesContainer = document.getElementById("names");
-const playerCountSelect = document.getElementById("playerCount");
-const currentPlayerEl = document.getElementById("currentPlayer");
-const cardEl = document.getElementById("card");
-const backFace = document.getElementById("backFace");
+function initSetup(){
+    const ps = document.getElementById("playerCount");
+    for(let i=3; i<=12; i++) ps.innerHTML += `<option ${i==6?'selected':''}>${i}</option>`;
+    updateNames();
+    updateImposters();
+}
 
-// --- Initialization ---
 function updateNames(){
-    const c = +playerCountSelect.value;
-    namesContainer.innerHTML="";
-    for(let i=1; i<=c; i++){
-        namesContainer.innerHTML += `
-        <div class="name-row">
-            <span>${i}.</span>
-            <input placeholder="Spieler ${i}">
-        </div>`;
-    }
+    const c = +document.getElementById("playerCount").value;
+    const container = document.getElementById("names");
+    container.innerHTML="";
+    for(let i=1; i<=c; i++) container.innerHTML += `<div class="name-row"><span>${i}</span><input placeholder="Spieler ${i}"></div>`;
 }
 
 function updateImposters(){
-    const c = +playerCountSelect.value;
-    const max = Math.floor(c/2);
-    impostersSelect.innerHTML = "";
-    for(let i=1; i<=max; i++){
-        impostersSelect.innerHTML += `<option>${i}</option>`;
-    }
+    const c = +document.getElementById("playerCount").value;
+    const sel = document.getElementById("imposters");
+    sel.innerHTML = "";
+    for(let i=1; i<=Math.floor(c/2); i++) sel.innerHTML += `<option>${i}</option>`;
 }
 
-updateNames();
-updateImposters();
-
-// --- Game Logic ---
-
 function start(){
-    // Gather names and Assign Random Colors
+    let pool = [...baseCards];
+    if(document.getElementById("useEvo").checked) pool = pool.concat(evoCards);
+    if(document.getElementById("useChampions").checked) pool = pool.concat(championCards);
+    if(document.getElementById("useHeroes").checked) pool = pool.concat(heroCards);
+
     const inputs = [...document.querySelectorAll("#names input")];
-    
-    // Shuffle colors so they are random every game
     const shuffledColors = shuffle([...playerColors]);
-
-    players = inputs.map((input, idx) => {
-        return {
-            name: input.value.trim() || input.placeholder,
-            // Use modulo in case more players than colors (loops back)
-            color: shuffledColors[idx % shuffledColors.length]
-        };
-    });
-
-    const impCount = +impostersSelect.value;
     
-    // Select Game Card
-    card = cards[Math.floor(Math.random() * cards.length)];
-    
-    // Determine Imposters (shuffle player list, pick first X names)
-    const justNames = players.map(p => p.name);
-    imposters = shuffle([...justNames]).slice(0, impCount);
+    players = inputs.map((input, idx) => ({
+        name: input.value.trim() || input.placeholder,
+        color: shuffledColors[idx % shuffledColors.length]
+    }));
+
+    selectedCard = pool[Math.floor(Math.random() * pool.length)];
+    const shuffledPlayers = shuffle(players.map(p => p.name));
+    imposters = shuffledPlayers.slice(0, +document.getElementById("imposters").value);
     
     index = 0;
-
-    // Transition UI
-    setupPanel.classList.add("hidden");
-    gamePanel.classList.remove("hidden");
-    
+    document.getElementById("setupPanel").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
     updateTurn();
 }
 
 function updateTurn(){
-    // Reset Card Flip
-    cardEl.classList.remove("flipped");
-
     const p = players[index];
-    
-    // Apply Animation class to trigger fade/pop effect
-    currentPlayerEl.classList.remove("turn-change-anim");
-    void currentPlayerEl.offsetWidth; // trigger reflow
-    currentPlayerEl.classList.add("turn-change-anim");
+    const nameEl = document.getElementById("currentPlayer");
+    const cardEl = document.getElementById("card");
+    const frontFace = document.getElementById("cardFront");
 
-    // Apply Content and Color
-    currentPlayerEl.innerText = p.name;
-    currentPlayerEl.style.color = p.color;
-    currentPlayerEl.style.textShadow = `0 0 25px ${p.color}80`; // Add glow of same color
+    cardEl.classList.remove("flipped");
+    nameEl.innerText = p.name;
+    nameEl.style.color = p.color;
+    frontFace.style.backgroundColor = p.color;
+    cardEl.style.boxShadow = `0 15px 45px ${p.color}60`;
 }
-
 
 function next(){
     if(index >= players.length - 1){
-        alert("Alle Spieler sind fertig! Startet die Diskussion!");
-        // Reset to Home
-        gamePanel.classList.add("hidden");
-        setupPanel.classList.remove("hidden");
-        setupPanel.style.opacity = 0;
-        setTimeout(() => setupPanel.style.opacity = 1, 100);
+        alert("Runde beendet! Wer ist der Imposter?");
+        location.reload();
         return;
     }
-    
     index++;
     updateTurn();
 }
 
+const cardElement = document.getElementById("card");
+const backFace = document.getElementById("backFace");
 
-// --- Card Flip Events ---
-const isTouch = 'ontouchstart' in window;
-
-if(isTouch){
-    cardEl.addEventListener("touchstart", flipOn);
-    cardEl.addEventListener("touchend", flipOff);
-} else {
-    cardEl.addEventListener("mousedown", flipOn);
-    cardEl.addEventListener("mouseup", flipOff);
-    cardEl.addEventListener("mouseleave", flipOff);
-}
-
-function flipOn(e){
-    e.preventDefault(); // prevents selection issues
-    cardEl.classList.add("flipped");
-    backFace.innerHTML = "";
+const flipOn = (e) => {
+    e.preventDefault();
+    cardElement.classList.add("flipped");
     
-    const currentPlayerName = players[index].name;
+    if(imposters.includes(players[index].name)){
+        // Pick a random hint from the secret card for the imposter
+        const hint = (selectedCard.h && selectedCard.h.length > 0) 
+                     ? selectedCard.h[Math.floor(Math.random() * selectedCard.h.length)] 
+                     : "Kein Tipp verfügbar";
 
-    if(imposters.includes(currentPlayerName)){
-        backFace.innerHTML = `
-            <div class="imposter-card">
-                <div class="icon">☠️</div>
-                <div class="text">IMPOSTER</div>
-            </div>`;
+        backFace.innerHTML = `<div class="imposter-card">
+            <span style="font-size:60px">☠️</span>
+            <span style="font-weight:800; letter-spacing:3px;">IMPOSTER</span>
+            <div class="imposter-hint-box">
+                <small style="text-transform:uppercase; display:block; margin-bottom:4px; opacity:0.7;">Tipp zur Karte:</small>
+                <strong>${hint}</strong>
+            </div>
+        </div>`;
     } else {
         backFace.innerHTML = `
-            <img src="${card.i}">
-            <div class="word-badge">${card.n}</div>`;
+            <img src="${selectedCard.i}">
+            <div class="word-badge">${selectedCard.n}</div>`;
     }
-}
+};
 
-function flipOff(){
-    cardEl.classList.remove("flipped");
-}
+const flipOff = () => cardElement.classList.remove("flipped");
 
-// --- Utility ---
+cardElement.addEventListener("mousedown", flipOn);
+cardElement.addEventListener("mouseup", flipOff);
+cardElement.addEventListener("touchstart", flipOn);
+cardElement.addEventListener("touchend", flipOff);
+
 function shuffle(a){
     for(let i=a.length-1; i>0; i--){
         const j = Math.floor(Math.random()*(i+1));
@@ -535,7 +487,8 @@ function shuffle(a){
     }
     return a;
 }
-</script>
 
+initSetup();
+</script>
 </body>
 </html>
