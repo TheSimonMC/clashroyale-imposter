@@ -54,19 +54,9 @@ Das Spiel ist direkt über GitHub Pages verfügbar:
 
 ---
 
-## ⚡ Verbesserungsvorschläge
-
-- Timer pro Spieler
-- Multiplayer-Online-Modus
-- Zusätzliche Kartenkategorien
-- Highscore/Statistiken
-- Soundeffekte und Animationen erweitern
-
----
-
 ## 🔗 Autor
 
-Simon Schagerl – [GitHub](https://github.com/thesimonmc)
+RcnTV – [GitHub](https://github.com/thesimonmc)
 
 ---
 
