@@ -15,6 +15,7 @@
     --text-main: #ffffff;
     --text-muted: #a0a0b0;
     --hint-color: #f1c40f;
+    --danger: #ff4757;
 }
 
 * { box-sizing: border-box; }
@@ -63,7 +64,7 @@ h1 {
 
 .toggle-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 8px;
     margin-bottom: 20px;
 }
@@ -83,6 +84,7 @@ h1 {
     text-transform: uppercase;
     margin-top: 5px;
     color: var(--text-muted);
+    text-align: center;
 }
 
 label.section-label {
@@ -111,7 +113,7 @@ select, input {
 .name-row span { width: 20px; font-size: 12px; color: var(--text-muted); }
 
 button {
-    margin-top: 25px;
+    margin-top: 20px;
     width: 100%;
     padding: 16px;
     font-size: 16px;
@@ -125,7 +127,7 @@ button {
     box-shadow: 0 5px 20px rgba(79, 195, 247, 0.4);
 }
 
-#game { width: 100%; max-width: 450px; text-align: center; }
+#game, #voteScreen { width: 100%; max-width: 450px; text-align: center; }
 
 #currentPlayer {
     font-size: 36px;
@@ -152,7 +154,6 @@ button {
 .front {
     background-color: #333;
     display: flex; align-items: center; justify-content: center;
-    transition: background-color 0.4s ease;
 }
 .front img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: luminosity; opacity: 0.7; }
 
@@ -184,6 +185,38 @@ button {
     line-height: 1.3;
 }
 
+/* Voting Styles */
+.vote-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.vote-btn {
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 0;
+    box-shadow: none;
+}
+
+.vote-btn:active { transform: scale(0.95); }
+
+.status-bar {
+    background: rgba(0,0,0,0.4);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+}
+
 .hidden { display: none !important; }
 </style>
 </head>
@@ -204,7 +237,7 @@ button {
         </div>
     </div>
 
-    <label class="section-label">Karten-Pool</label>
+    <label class="section-label">Einstellungen</label>
     <div class="toggle-container">
         <div class="toggle-item">
             <input type="checkbox" id="useEvo" checked>
@@ -217,6 +250,10 @@ button {
         <div class="toggle-item">
             <input type="checkbox" id="useHeroes" checked>
             <label for="useHeroes">Heroes</label>
+        </div>
+        <div class="toggle-item">
+            <input type="checkbox" id="anonEject">
+            <label for="anonEject">Anon Eject</label>
         </div>
     </div>
 
@@ -240,8 +277,15 @@ button {
     <button onclick="next()" id="nextBtn">Nächster Spieler</button>
 </div>
 
+<div id="voteScreen" class="panel hidden">
+    <h2 style="margin-top:0;">Voting Phase</h2>
+    <div id="imposterCountDisplay" class="status-bar"></div>
+    <p style="font-size:13px; color:var(--text-muted);">Diskutiert und wählt jemanden aus:</p>
+    <div id="voteGrid" class="vote-grid"></div>
+</div>
+
 <script>
-const playerColors = ["#FF4757", "#2ED573", "#1E90FF", "#FFA502", "#E056FD", "#F1C40F", "#00D2D3", "#FF6B81"];
+const playerColors = ["#FF4757", "#2ED573", "#1E90FF", "#FFA502", "#E056FD", "#F1C40F", "#00D2D3", "#FF6B81", "#747d8c", "#a4b0be", "#f0932b", "#eb4d4b"];
 
 const baseCards = [
     {n:"Knight",i:"https://royaleapi.com/static/img/cards-150/knight.png", h:["Gewöhnlich", "Mini Tank", "3 Elixir", "Defensiv", "Kein Spell"]},
@@ -261,7 +305,7 @@ const baseCards = [
     {n:"Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer.png", h:["Fernkampf", "Hat Evo", "Kein Spell", "4 Elixir"]},
     {n:"Baby Dragon",i:"https://royaleapi.com/static/img/cards-150/baby-dragon.png", h:["Splash", "4 Elixir", "Kein Spell", "Episch", "Hat Evo", "Luft"]},
     {n:"Prince",i:"https://royaleapi.com/static/img/cards-150/prince.png", h:["Charge", "Kein Evo", "5 Elixir", "Episch", "Kein Spell"]},
-{n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png", h:["Splash", "Fernkampf", "Selten", "5 Elixir", "Kein Spell", "Magie"]},
+    {n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png", h:["Splash", "Fernkampf", "Selten", "5 Elixir", "Kein Spell", "Magie"]},
     {n:"Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka.png", h:["Nahkampf", "Schnell", "4 Elixir", "Selten", "Viel Schaden", "Kein Spell"]},
     {n:"Spear Goblins",i:"https://royaleapi.com/static/img/cards-150/spear-goblins.png", h:["Trio", "Fernkampf", "2 Elixir", "Gewöhnlich", "Kein Spell"]},
     {n:"Giant Skeleton",i:"https://royaleapi.com/static/img/cards-150/giant-skeleton.png", h:["Bombe", "Tank", "6 Elixir", "Episch", "Kein Spell", "Groß"]},
@@ -373,9 +417,9 @@ const heroCards = [
 ];
 
 let players = []; 
-let imposters = [];
 let index = 0;
 let selectedCard;
+let remainingImposters = 0;
 
 function initSetup(){
     const ps = document.getElementById("playerCount");
@@ -407,15 +451,22 @@ function start(){
     const inputs = [...document.querySelectorAll("#names input")];
     const shuffledColors = shuffle([...playerColors]);
     
+    selectedCard = pool[Math.floor(Math.random() * pool.length)];
+    const numImposters = +document.getElementById("imposters").value;
+    remainingImposters = numImposters;
+
+    // Assign roles
+    let roles = new Array(inputs.length).fill(false);
+    for(let i=0; i<numImposters; i++) roles[i] = true;
+    roles = shuffle(roles);
+
     players = inputs.map((input, idx) => ({
         name: input.value.trim() || input.placeholder,
-        color: shuffledColors[idx % shuffledColors.length]
+        color: shuffledColors[idx % shuffledColors.length],
+        isImposter: roles[idx],
+        alive: true
     }));
 
-    selectedCard = pool[Math.floor(Math.random() * pool.length)];
-    const shuffledPlayers = shuffle(players.map(p => p.name));
-    imposters = shuffledPlayers.slice(0, +document.getElementById("imposters").value);
-    
     index = 0;
     document.getElementById("setupPanel").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
@@ -437,12 +488,68 @@ function updateTurn(){
 
 function next(){
     if(index >= players.length - 1){
-        alert("Runde beendet! Wer ist der Imposter?");
-        location.reload();
+        startVoting();
         return;
     }
     index++;
     updateTurn();
+}
+
+function startVoting() {
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("voteScreen").classList.remove("hidden");
+    renderVoteGrid();
+}
+
+function renderVoteGrid() {
+    const grid = document.getElementById("voteGrid");
+    const countDisplay = document.getElementById("imposterCountDisplay");
+    grid.innerHTML = "";
+    
+    countDisplay.innerText = `${remainingImposters} Imposter übrig`;
+
+    players.forEach((p, idx) => {
+        if(!p.alive) return;
+        const btn = document.createElement("button");
+        btn.className = "vote-btn";
+        btn.style.borderColor = p.color;
+        btn.innerText = p.name;
+        btn.onclick = () => eject(idx);
+        grid.appendChild(btn);
+    });
+}
+
+function eject(idx) {
+    const p = players[idx];
+    const anon = document.getElementById("anonEject").checked;
+    p.alive = false;
+
+    let message = "";
+    if (p.isImposter) {
+        remainingImposters--;
+        message = anon ? `${p.name} wurde eliminiert.` : `${p.name} war ein Imposter!`;
+    } else {
+        message = anon ? `${p.name} wurde eliminiert.` : `${p.name} war kein Imposter.`;
+    }
+
+    alert(message);
+    checkGameOver();
+}
+
+function checkGameOver() {
+    const alivePlayers = players.filter(p => p.alive);
+    const aliveImposters = alivePlayers.filter(p => p.isImposter).length;
+    const aliveCivilians = alivePlayers.length - aliveImposters;
+
+    if (aliveImposters === 0) {
+        alert("Sieg für die Zivilisten! Alle Imposter wurden gefunden.");
+        location.reload();
+    } else if (aliveImposters >= aliveCivilians) {
+        alert("Sieg für die Imposter! Sie haben die Mehrheit übernommen.");
+        location.reload();
+    } else {
+        renderVoteGrid();
+    }
 }
 
 const cardElement = document.getElementById("card");
@@ -452,12 +559,8 @@ const flipOn = (e) => {
     e.preventDefault();
     cardElement.classList.add("flipped");
     
-    if(imposters.includes(players[index].name)){
-        // Pick a random hint from the secret card for the imposter
-        const hint = (selectedCard.h && selectedCard.h.length > 0) 
-                     ? selectedCard.h[Math.floor(Math.random() * selectedCard.h.length)] 
-                     : "Kein Tipp verfügbar";
-
+    if(players[index].isImposter){
+        const hint = selectedCard.h[Math.floor(Math.random() * selectedCard.h.length)];
         backFace.innerHTML = `<div class="imposter-card">
             <span style="font-size:60px">☠️</span>
             <span style="font-weight:800; letter-spacing:3px;">IMPOSTER</span>
