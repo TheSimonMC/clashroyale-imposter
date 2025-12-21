@@ -45,15 +45,6 @@ Das Spiel ist direkt über GitHub Pages verfügbar:
 
 ---
 
-## 📂 Projektstruktur
-
-- `index.html` – Hauptseite und Logik
-- `style` – CSS innerhalb von `<style>` im HTML
-- `script` – JavaScript innerhalb von `<script>` im HTML
-- Bilder werden direkt von RoyaleAPI geladen
-
----
-
 ## 🔗 Autor
 
 RcnTV – [GitHub](https://github.com/thesimonmc)
