@@ -12,8 +12,8 @@
   const dialog = $('#dialog');
   const warmedImages=new Set();
   function warmCardImages(){
-    if(theme!=='clash')return;
-    for(const src of ['assets/images/cards-base.webp','assets/images/cards-special.webp']){
+    const sources=theme==='clash'?['assets/images/cards-base.webp','assets/images/cards-special.webp']:theme==='custom'?[]:[`assets/images/${theme}-terms.webp`];
+    for(const src of sources){
       if(warmedImages.has(src))continue;
       warmedImages.add(src);const image=new Image();image.src=src;
     }
@@ -23,7 +23,7 @@
   function icon(name, className = 'icon') { const el = document.createElementNS(svgNS, 'svg'); el.setAttribute('class', className); el.setAttribute('aria-hidden', 'true'); const use = document.createElementNS(svgNS, 'use'); use.setAttribute('href', '#' + name); el.append(use); return el; }
   function cardArtwork(source, label) {
     if (source && typeof source === 'object') {
-      const art = node('span','card-atlas');
+      const art = node('span','card-atlas'+(source.kind?' theme-atlas':''));
       art.setAttribute('role','img'); art.setAttribute('aria-label',label);
       art.style.backgroundImage = `url("${source.src}")`;
       art.style.backgroundSize = `${source.cols * 100}% ${source.rows * 100}%`;
@@ -106,7 +106,11 @@
     $('#themes').replaceChildren();
     themes.forEach((t, i) => {
       const button = node('button','theme-card'); button.type = 'button'; button.dataset.theme = t.id; button.style.setProperty('--theme', t.color); button.setAttribute('aria-pressed',String(t.id === theme));
-      const art = node('span','theme-art'); const thumb=node('img');thumb.src=themeImages[t.id];thumb.alt='';thumb.loading='lazy';thumb.addEventListener('error',()=>thumb.replaceWith(node('span','theme-art-fallback',t.name)),{once:true});art.append(thumb);
+      const art = node('span','theme-art'); const thumb=node('img');thumb.src=themeImages[t.id];thumb.alt='';thumb.loading='lazy';thumb.addEventListener('error',()=>thumb.replaceWith(node('span','theme-art-fallback',t.name)),{once:true});
+      if(['minecraft','pokemon'].includes(t.id)){
+        art.classList.add('theme-collage');const pool=buildDeck(t.id);const picks=t.id==='minecraft'?['Diamant','Creeper','Ofen']:['Glurak','Pikachu','Evoli'];
+        picks.forEach(word=>{const entry=pool.find(c=>c.word===word);if(entry?.image){const picture=cardArtwork(entry.image,'');picture.setAttribute('aria-hidden','true');art.append(picture)}});
+      }else art.append(thumb);
       const check = node('span','selection-check'); check.append(icon('check')); check.setAttribute('aria-hidden','true');
       const copy = node('span','theme-copy'); const size = t.id === 'custom' ? 'EURE EIGENEN BEGRIFFE' : `${buildDeck(t.id, filters()).length} BEGRIFFE`;
       copy.append(node('strong','',t.name),node('small','',t.sub),node('span','theme-count',size)); button.append(art,check,copy);
@@ -177,7 +181,7 @@
     if (!game || game.phase !== 'reveal' || dialog.open || document.hidden) return;
     clearTimeout(hideTimer); secretShown = true;
     const secret = game.secret(); const content = $('#secret-content'); const inner=node('span','secret-inner');
-    content.replaceChildren(inner);content.classList.toggle('danger-card',secret.danger);content.classList.toggle('is-clash',theme==='clash'&&!secret.danger);
+    content.replaceChildren(inner);content.classList.toggle('danger-card',secret.danger);content.classList.toggle('is-clash',theme==='clash'&&!secret.danger);content.classList.toggle('has-theme-art',!!secret.image?.kind);
     inner.append(node('span','secret-role',secret.role.toLocaleUpperCase('de')));
     if (secret.image) {
       inner.append(cardArtwork(secret.image,secret.word));

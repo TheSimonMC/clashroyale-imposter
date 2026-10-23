@@ -12,7 +12,7 @@ Alle Bilder liegen als lokale WebP-Dateien im Repository. Es werden zur Laufzeit
 - Alltag: [Unsplash](https://images.unsplash.com/photo-1484154218962-a197022b5858).
 - Eigene Begriffe: [Unsplash](https://images.unsplash.com/photo-1455390582262-044cdead277a).
 
-Die Fotos und die Minecraft-/Pokémon-Grafiken illustrieren die Themenwelt. Die eigentlichen Begriffe stehen auf der Karte. Sie sind keine individuell bebilderte Datenbank aller Wörter.
+Die sechs vorgefertigten Themen außerhalb von Clash Royale enthalten jetzt 239 individuelle Begriffsbilder, einschließlich der Undercover-Partner. Pokémon-Illustrationen und Item-Sprites stammen überwiegend aus PokéAPI; Minecraft-Inventarbilder aus PrismarineJS/minecraft-assets. Weitere Fotos, Filmplakate und Spielgrafiken sind mit ihrem jeweiligen Quelllink und Bildlink in `term-image-sources.json` dokumentiert. Alle Bilder werden lokal in sechs WebP-Atlanten ausgeliefert. Eigene Begriffe verwenden weiterhin das allgemeine Themenbild. Die Quellenliste überträgt keine Nutzungsrechte an den Originalbildern.
 
 This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it. For more information see [Supercell’s Fan Content Policy](https://supercell.com/en/fan-content-policy/).
 

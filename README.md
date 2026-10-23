@@ -6,7 +6,7 @@ Ein lokales Partyspiel für 3 bis 12 Personen. Alle bekommen denselben geheimen 
 
 ## Themen und Spielmodi
 
-Acht Themenwelten: Clash Royale, Minecraft, Pokémon, Filme & Serien, Fußball, Essen & Trinken, Alltag & Chaos und eigene Begriffe. Die vorhandenen 117 Clash-Royale-Karten bleiben mit ihren Bildern und Hinweisen erhalten. Evolutionen, Champions und Helden lassen sich separat zuschalten. Die sechs weiteren vorgefertigten Welten enthalten jeweils 20 Begriffspaare.
+Acht Themenwelten: Clash Royale, Minecraft, Pokémon, Filme & Serien, Fußball, Essen & Trinken, Alltag & Chaos und eigene Begriffe. Die vorhandenen 117 Clash-Royale-Karten bleiben mit ihren Bildern und Hinweisen erhalten. Evolutionen, Champions und Helden lassen sich separat zuschalten. Die sechs weiteren vorgefertigten Welten enthalten jeweils 20 Begriffspaare. Alle 239 unterschiedlichen Begriffe und Partner haben eigene lokale Bilder. Minecraft und Pokémon zeigen in der Themenauswahl mehrere Motive.
 
 | Modus | Ablauf |
 | --- | --- |
@@ -49,9 +49,10 @@ Namen und Einstellungen werden nach jeder Änderung, soweit der Browser es erlau
 
 - `index.html`: Seitenstruktur, native Dialoge und lokale SVG-Symbole.
 - `assets/styles.css`: grundlegende Komponenten und 3D-Karten.
-- `assets/mobile.css`: Handyansicht, dreistufige Vorbereitung und dunkler Aktenstil ohne Leuchteffekte.
+- `assets/mobile.css`: Handyansicht, dreistufige Vorbereitung und dunkle violette Farben ohne Leuchteffekte.
 - `assets/preferences.js`: geprüfte lokale Speicherung der Namen und Regeln.
 - `assets/data.js`: Karten und Begriffspaare.
+- `assets/theme-art.js`: Zuordnung der 239 Begriffsbilder zu lokalen WebP-Atlanten.
 - `assets/engine.js`: Spiellogik ohne DOM-Abhängigkeit.
 - `assets/app.js`: Rollenübergabe, Einstellungen, Timer und Gruppenabstimmung.
 - `tests/engine.test.cjs`: Tests für Rollenverteilung, Spielphasen und Siegbedingungen.

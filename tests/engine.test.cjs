@@ -73,3 +73,24 @@ test('All theme thumbnails are local and available',()=>{
  const {themeImages}=require('../assets/data.js');const fs=require('node:fs'),path=require('node:path');
  for(const t of themes){assert(themeImages[t.id]);assert(fs.existsSync(path.join(__dirname,'..',themeImages[t.id])),t.id)}
 });
+
+test('Every built-in theme term and Undercover partner has its own local picture',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const art=require('../assets/theme-art.js');
+ let total=0;
+ for(const [theme,pictures] of Object.entries(art)){
+  const positions=new Set();
+  for(const [word,pic] of Object.entries(pictures)){
+   assert(fs.existsSync(path.join(__dirname,'..',pic.src)),`${theme}: ${word}`);
+   assert(pic.x>=0&&pic.x<pic.cols&&pic.y>=0&&pic.y<pic.rows);
+   const key=`${pic.x},${pic.y}`;assert(!positions.has(key),`${theme}: duplicate image cell`);positions.add(key);total++;
+  }
+  for(const entry of buildDeck(theme)){
+   assert.deepEqual(entry.image,pictures[entry.word]);assert.deepEqual(entry.alternateImage,pictures[entry.alternate]);
+   assert(entry.image&&entry.alternateImage);
+  }
+  const game=new Game(config({mode:'undercover'}),buildDeck(theme));
+  game.turn=game.players.findIndex(p=>p.imposter);assert.deepEqual(game.secret().image,pictures[game.entry.alternate]);
+ }
+ assert.equal(total,239);
+});
