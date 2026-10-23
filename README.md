@@ -1,4 +1,4 @@
-# Imposter After Dark
+# Imposter
 
 Ein lokales Partyspiel für 3 bis 12 Personen. Alle bekommen denselben geheimen Begriff, die Imposter müssen bluffen. Ein Gerät wird reihum weitergegeben.
 
@@ -35,7 +35,7 @@ Der Timer lässt sich pausieren oder neu starten. Sein Ablauf schließt niemande
 
 ## Lokal öffnen
 
-`index.html` im Browser öffnen. Es gibt keinen Build-Schritt und keine JavaScript-Abhängigkeiten. CSS, Spiellogik, Begriffe und Vektorgrafiken liegen im Repository. Für die externen Clash-Royale-Bilder wird eine Internetverbindung benötigt. Bei Ladefehlern erscheint ein lokales Symbol; der Begriff bleibt lesbar.
+`index.html` im Browser öffnen. Es gibt keinen Build-Schritt und keine JavaScript-Abhängigkeiten. CSS, Spiellogik, Begriffe und Vektorgrafiken liegen im Repository. Die Clash-Royale-Karten und Themenbilder liegen lokal im Repository. Die Karte hat zwei getrennte Flächen mit einer CSS-3D-Drehung. Beim Loslassen werden Begriff und Bild sofort entfernt, während sich die Rückseite zurückdreht. Bei reduzierter Bewegung oder Tastaturbedienung wird die Karte ohne Drehbewegung aufgedeckt. Über „Karten ansehen“ lässt sich der komplette aktive Clash-Royale-Pool prüfen.
 
 Optional über einen lokalen Server:
 
@@ -66,4 +66,6 @@ Die im Repository enthaltene `app-debug.apk` ist eine ältere Android-Version un
 
 ## Autor und Inhalte
 
-Ursprüngliches Spiel von RcnTV / [TheSimonMC](https://github.com/TheSimonMC). Unabhängiges Fan-Projekt, nicht mit den Rechteinhabern der genannten Spiele und Marken verbunden. Die vorhandenen Clash-Royale-Bilder werden von RoyaleAPI geladen.
+Ursprüngliches Spiel von RcnTV / [TheSimonMC](https://github.com/TheSimonMC). Unabhängiges Fan-Projekt, nicht mit den Rechteinhabern der genannten Spiele und Marken verbunden. Die Clash-Royale-Illustrationen stammen aus [RoyaleAPI/cr-api-assets](https://github.com/RoyaleAPI/cr-api-assets). Alle 117 bestehenden Einträge bleiben erhalten. Für „Evo Goblins“, „Evo Giant“ und „Evo Ram Rider“ war im Quellbestand keine eigene Evolutionsillustration vorhanden; diese Einträge verwenden die passende Basisillustration und sind so gekennzeichnet. Quellen der Themenbilder stehen in `assets/images/SOURCES.md`.
+
+Die illustrierten Karten sind in zwei WebP-Bildatlanten zusammengefasst. Dadurch laden auch bei mehreren Runden dieselben zwei Dateien statt eines eigenen Bildes pro gezogenem Begriff. Die dargestellte Kartengrafik im Undercover-Modus passt zum jeweiligen Partnerbegriff.

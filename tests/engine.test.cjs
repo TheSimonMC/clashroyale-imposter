@@ -59,3 +59,17 @@ test('Custom words are deduplicated, bounded, and require partners for Undercove
  assert.equal(buildDeck('custom',{},'x'.repeat(200))[0].word.length,60);
 });
 test('Shuffling does not mutate the original order',()=>{const source=[1,2,3,4];const result=shuffle(source,seeded(7));assert.deepEqual(source,[1,2,3,4]);assert.deepEqual([...result].sort(),source)});
+
+test('All 117 Clash cards have local artwork with valid atlas coordinates',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const cards=buildDeck('clash',{evo:true,champions:true,heroes:true});
+ for(const c of cards){assert(c.image&&typeof c.image==='object',c.word);assert(c.image.src.startsWith('assets/images/'));assert(fs.existsSync(path.join(__dirname,'..',c.image.src)));assert(c.image.x>=0&&c.image.x<c.image.cols);assert(c.image.y>=0&&c.image.y<c.image.rows);assert(c.alternateImage)}
+ assert.equal(cards.filter(c=>c.image.basis).length,3);
+});
+test('Undercover uses the partner card illustration for imposters',()=>{
+ const d=buildDeck('clash');const g=new Game(config({mode:'undercover'}),d);g.turn=g.players.findIndex(p=>p.imposter);assert.deepEqual(g.secret().image,g.entry.alternateImage);
+});
+test('All theme thumbnails are local and available',()=>{
+ const {themeImages}=require('../assets/data.js');const fs=require('node:fs'),path=require('node:path');
+ for(const t of themes){assert(themeImages[t.id]);assert(fs.existsSync(path.join(__dirname,'..',themeImages[t.id])),t.id)}
+});

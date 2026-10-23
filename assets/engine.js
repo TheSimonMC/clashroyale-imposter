@@ -49,7 +49,7 @@
       const player = this.players[this.turn];
       this.seen.add(player.id);
       const undercover = this.config.mode === 'undercover';
-      return {name: player.name, role: undercover ? 'Dein Begriff' : player.imposter ? 'Du bist Imposter' : 'Du gehörst zum Team', word: player.imposter ? (undercover ? this.entry.alternate : 'IMPOSTER') : this.entry.word, hint: !undercover && player.imposter && this.config.hints ? player.hint : '', image: !player.imposter ? this.entry.image : '', danger: !undercover && player.imposter};
+      return {name: player.name, role: undercover ? 'Dein Begriff' : player.imposter ? 'Du bist Imposter' : 'Du gehörst zum Team', word: player.imposter ? (undercover ? this.entry.alternate : 'IMPOSTER') : this.entry.word, hint: !undercover && player.imposter && this.config.hints ? player.hint : '', image: player.imposter ? (undercover ? this.entry.alternateImage : '') : this.entry.image, danger: !undercover && player.imposter};
     }
     next() {
       if (this.phase !== 'reveal' || !this.seen.has(this.turn)) return false;

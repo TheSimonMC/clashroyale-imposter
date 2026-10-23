@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0b0c12">
 <meta name="description" content="Ein Begriff, geheime Rollen und jede Menge Verdacht. Spielt Imposter mit Clash Royale, Minecraft, Pokémon, Filmen oder eigenen Begriffen. Gemeinsam an einem Gerät.">
-<title>Imposter After Dark | Das Partyspiel für eure Runde</title>
+<title>Imposter | Karten auf den Tisch</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/styles.css">
 <script defer src="assets/data.js"></script>
@@ -41,8 +41,8 @@
 <div class="ambient" aria-hidden="true"></div>
 <div class="app-shell">
 <aside class="sidebar">
- <a class="logo" href="./" aria-label="Imposter After Dark Startseite"><span class="logo-mark"><svg><use href="#eye"/></svg></span><span>imposter<span class="logo-sub">AFTER DARK</span></span></a>
- <div class="side-label micro">DER SPIELRAUM</div>
+ <a class="logo" href="./" aria-label="Imposter After Dark Startseite"><span class="logo-mark"><svg><use href="#eye"/></svg></span><span>IMPOSTER<span class="logo-sub">CLASH ROYALE & MEHR</span></span></a>
+ <div class="side-label micro">IMPOSTER</div>
  <button class="side-item active" id="nav-play"><svg class="icon"><use href="#play"/></svg>Spielen<span class="side-dot"></span></button>
  <button class="side-item" data-help><svg class="icon"><use href="#help"/></svg>So geht’s</button>
  <div class="side-bottom"><div class="device-graphic" aria-hidden="true"><svg class="icon"><use href="#users"/></svg><span>+ + +</span></div><p>Ein Gerät.<br>Alle unter Verdacht.</p><span class="micro">3 BIS 12 PERSONEN · LOKAL</span><a href="https://github.com/TheSimonMC/clashroyale-imposter" class="source-link" target="_blank" rel="noopener noreferrer">Ein Projekt von RcnTV ↗</a></div>
@@ -52,21 +52,21 @@
 <main id="main" tabindex="-1">
 <section id="setup-view" class="view">
  <div class="hero">
-  <div class="hero-copy"><div class="eyebrow"><span></span> DAS PARTY SPIEL MIT POKERFACE</div><h1>JEDER WEISS ES.<br><em>EINER BLUFFT.</em></h1><p>Ein geheimer Begriff. Eure besten Ausreden.<br>Findet heraus, wer nur so tut, als wäre er im Bild.</p><div class="hero-meta"><span><svg class="icon"><use href="#users"/></svg>3 bis 12 Personen</span><span><svg class="icon"><use href="#clock"/></svg>5 bis 15 Minuten</span><span><svg class="icon"><use href="#lock"/></svg>Ohne Anmeldung</span></div></div>
-  <div class="hero-art" aria-hidden="true"><div class="orbital orbit-a"></div><div class="orbital orbit-b"></div><div class="hero-cross cross-a">+</div><div class="hero-cross cross-b">+</div><div class="dossier back-dossier"></div><div class="dossier middle-dossier"></div><div class="dossier main-dossier"><div class="dossier-head"><span>IDENTITÄT UNBEKANNT</span><svg class="icon"><use href="#lock"/></svg></div><svg class="hero-mask"><use href="#mask"/></svg><div class="dossier-foot"><span>VERTRAU NIEMANDEM.</span><b>?</b></div></div><span class="art-tag">VERDÄCHTIG GUTER SPIELEABEND</span></div>
+  <div class="hero-copy"><div class="eyebrow"><span></span> FÜR EURE NÄCHSTE RUNDE</div><h1>Wer ist der<br><em>Imposter?</em></h1><p>Die meisten kennen den Begriff. Die Imposter müssen bluffen.<br>Wählt ein Thema und gebt das Gerät reihum weiter.</p><div class="hero-meta"><span><svg class="icon"><use href="#users"/></svg>3 bis 12 Personen</span><span><svg class="icon"><use href="#clock"/></svg>5 bis 15 Minuten</span><span><svg class="icon"><use href="#lock"/></svg>Ohne Anmeldung</span></div></div>
+  <div class="hero-art" aria-hidden="true"><div class="table-ring"></div><img class="table-card table-left" src="assets/images/hog-rider.webp" alt=""><img class="table-card table-right" src="assets/images/archer-queen.webp" alt=""><img class="table-card table-center" src="assets/images/pekka.webp" alt=""><span class="table-note">WEM GIBST DU DEINE STIMME?</span></div>
  </div>
  <div class="setup-layout">
   <div class="selection-column">
-   <div class="section-title"><div><span class="step-number">01</span><h2>Wählt eure Welt.</h2></div><span class="micro muted">8 THEMENWELTEN</span></div>
+   <div class="section-title"><div><span class="step-number">01</span><h2>Womit spielen wir?</h2></div><span class="micro muted">8 THEMEN</span></div>
    <div id="themes" class="theme-grid" role="group" aria-label="Themenwelt wählen"></div>
-   <div id="clash-options" class="clash-options"><span class="micro muted">ZUSÄTZLICHE KARTEN</span><div class="filter-chips"><label><input id="evo" type="checkbox" checked><span>Evolutionen</span></label><label><input id="champions" type="checkbox" checked><span>Champions</span></label><label><input id="heroes" type="checkbox" checked><span>Helden</span></label></div></div>
+   <div id="clash-options" class="clash-options"><button type="button" id="view-deck" class="text-button">Karten ansehen <span>↗</span></button><div class="filter-chips"><label><input id="evo" type="checkbox" checked><span>Evolutionen</span></label><label><input id="champions" type="checkbox" checked><span>Champions</span></label><label><input id="heroes" type="checkbox" checked><span>Helden</span></label></div></div>
    <div id="custom-options" class="custom-options" hidden><label for="custom-words">Eure Begriffe</label><p>Ein Begriff pro Zeile. Für Undercover: <code>Pizza | Flammkuchen | Aus dem Ofen</code>. Mindestens 6 unterschiedliche Begriffe.</p><textarea id="custom-words" rows="7" maxlength="12000" placeholder="Pizza | Flammkuchen | Aus dem Ofen&#10;Kaffee | Espresso | Hilft am Morgen"></textarea><span id="custom-count" class="micro muted">0 BEGRIFFE</span></div>
-   <div class="section-title mode-title"><div><span class="step-number">02</span><h2>Wie gut könnt ihr bluffen?</h2></div></div>
+   <div class="section-title mode-title"><div><span class="step-number">02</span><h2>Die Spielregeln.</h2></div></div>
    <div class="mode-list" id="modes" role="group" aria-label="Spielmodus wählen"></div>
-   <div class="quick-guide"><svg class="icon"><use href="#eye"/></svg><p>Alle bekommen ihren Begriff verdeckt. Gebt reihum einen Hinweis und hört genau zu. Wer redet sich raus?</p><button class="text-button" data-help>Regeln lesen <span>↗</span></button></div>
+   <div class="quick-guide"><svg class="icon"><use href="#eye"/></svg><p>Gebt das Gerät reihum weiter. Jede Person schaut sich ihre Karte an. Danach nennt ihr Hinweise und stimmt gemeinsam ab.</p><button class="text-button" data-help>Regeln lesen <span>↗</span></button></div>
   </div>
   <section class="config-panel" aria-labelledby="party-title">
-   <div class="config-head"><span class="step-number">03</span><div><span class="micro muted">ALLE AN BORD?</span><h2 id="party-title" tabindex="-1">Eure Runde.</h2></div><svg class="icon"><use href="#users"/></svg></div>
+   <div class="config-head"><span class="step-number">03</span><div><span class="micro muted">MIT EINEM GERÄT SPIELEN</span><h2 id="party-title" tabindex="-1">Wer spielt mit?</h2></div><svg class="icon"><use href="#users"/></svg></div>
    <div class="config-body">
     <div class="number-settings"><div><label for="player-count">Personen</label><div class="stepper"><button type="button" id="players-minus" aria-label="Eine Person weniger">−</button><output id="player-count" aria-live="polite">6</output><button type="button" id="players-plus" aria-label="Eine Person mehr">+</button></div></div><div><label for="imposter-count">Imposter</label><select id="imposter-count" aria-describedby="imposter-note"></select></div></div>
     <p id="imposter-note" class="field-note">Mindestens eine Person blufft.</p>
@@ -86,7 +86,7 @@
 <section id="reveal-view" class="view game-view" hidden aria-labelledby="turn-title">
  <div class="game-toolbar"><button class="text-button exit-game"><svg class="icon"><use href="#back"/></svg>Zur Lobby</button><span class="phase-pill">01 / ROLLEN VERTEILEN</span><span id="reveal-progress" class="micro muted"></span></div>
  <div class="game-centered"><span class="eyebrow">DAS GERÄT GEHÖRT JETZT</span><h1 id="turn-title" class="player-heading" tabindex="-1"></h1><p class="game-subtitle" id="turn-instruction">Nur du schaust hin. Die anderen drehen sich kurz weg.</p>
- <button id="secret-card" class="secret-card" aria-label="Gedrückt halten, um deine Rolle anzusehen. Mit Leertaste oder Enter ebenfalls gedrückt halten." aria-describedby="hold-instruction"><span id="secret-cover" class="secret-cover"><span class="secret-micro micro">NUR FÜR DEINE AUGEN</span><svg class="secret-mask"><use href="#mask"/></svg><span class="secret-cover-label">Dein Geheimnis.</span><span class="secret-cover-sub">Gedrückt halten zum Aufdecken</span><span class="secret-lock"><svg class="icon"><use href="#lock"/></svg></span></span><span id="secret-content" class="secret-content" hidden></span></button>
+ <div class="card-perspective"><button id="secret-card" class="secret-card" aria-label="Gedrückt halten, um deine Rolle anzusehen. Mit Leertaste oder Enter ebenfalls gedrückt halten." aria-describedby="hold-instruction"><span id="secret-cover" class="secret-cover"><span class="secret-micro micro">IMPOSTER</span><img class="card-back-image" src="assets/images/card-back.webp" alt=""><span class="secret-cover-label">Nur für dich.</span><span class="secret-cover-sub">Gedrückt halten zum Aufdecken</span><span class="secret-lock"><svg class="icon"><use href="#lock"/></svg></span></span><span id="secret-content" class="secret-content" hidden></span></button></div>
  <p class="hold-instruction" id="hold-instruction">Loslassen verdeckt die Karte sofort.</p><button class="text-button accessible-reveal" id="accessible-reveal">Karte per Klick anzeigen</button>
  <button id="next-player" class="button primary next-player" disabled>Gesehen. Weitergeben.<svg class="icon"><use href="#arrow"/></svg></button><div class="handoff-dots" id="handoff-dots" aria-hidden="true"></div>
  </div>
@@ -96,7 +96,7 @@
 <section id="ejected-view" class="view game-view" hidden aria-labelledby="ejected-title"><div class="game-centered result-centered"><span class="result-emblem" aria-hidden="true"><svg><use href="#eye"/></svg></span><span class="eyebrow">DIE ENTSCHEIDUNG STEHT</span><h1 class="stage-heading player-heading" id="ejected-title" tabindex="-1"></h1><p class="game-subtitle" id="ejected-message"></p><p class="game-note" id="ejected-remaining"></p><button id="continue-round" class="button primary">Weiterdiskutieren<svg class="icon"><use href="#arrow"/></svg></button></div></section>
 <section id="result-view" class="view game-view" hidden aria-labelledby="result-title"><div class="game-centered result-centered"><span class="result-emblem" id="result-emblem" aria-hidden="true"><svg><use href="#shield"/></svg></span><span class="eyebrow">RUNDE AUFGELÖST</span><h1 class="stage-heading" id="result-title" tabindex="-1"></h1><p class="game-subtitle" id="result-subtitle"></p><div class="word-recap"><span class="micro muted">DER GESUCHTE BEGRIFF</span><strong id="result-word"></strong><span id="alternate-recap" class="muted"></span></div><div id="result-roster" class="result-roster"></div><button id="play-again" class="button primary full">Revanche. Gleiche Runde.<svg class="icon"><use href="#refresh"/></svg></button><button class="text-button" id="new-setup">Thema oder Gruppe ändern <span>↗</span></button></div></section>
 </main>
-<footer class="footer"><span class="micro">GUTE FREUNDE. SCHLECHTE AUSREDEN.</span><span class="micro muted">IMPOSTER / AFTER DARK <span class="footer-separator">·</span> FAN-PROJEKT</span></footer>
+<footer class="footer"><span class="micro">Ein Spiel von RcnTV</span><span class="micro muted">IMPOSTER <span class="footer-separator">·</span> FAN-PROJEKT</span></footer>
 </div></div>
 <dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-head"><span class="eyebrow" id="dialog-eyebrow">IMPOSTER AFTER DARK</span><button id="dialog-close" class="icon-button" aria-label="Schließen"><svg class="icon"><use href="#x"/></svg></button></div><h2 id="dialog-title"></h2><div id="dialog-body"></div><div id="dialog-actions" class="dialog-actions"></div></dialog>
 <noscript><div class="noscript">Zum Spielen muss JavaScript eingeschaltet sein. Es werden keine Daten an einen Spielserver gesendet.</div></noscript>

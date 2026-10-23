@@ -3,17 +3,36 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
-  const {themes, modes, buildDeck} = window.ImposterData;
+  const {themes, modes, buildDeck, themeImages} = window.ImposterData;
   const {Game, maxImposters, shuffle} = window.ImposterEngine;
   const colors = ['#b5a0ed','#86bda3','#89b4df','#e6ac7b','#c490c4','#c6c978','#84bcbc','#df99a4','#a49ce0','#a3bf80','#caad96','#91a9bd'];
   const storageKey = 'imposter-after-dark-setup-v1';
   let count = 6, names = Array(12).fill(''), theme = 'clash', mode = 'classic';
-  let game = null, selectedVote = null, previousWord = '', secretShown = false, heldPointer = null;
+  let game = null, selectedVote = null, previousWord = '', secretShown = false, heldPointer = null, hideTimer = 0;
   let timer = {length: 180, remaining: 180000, deadline: 0, paused: false, interval: null};
   const dialog = $('#dialog');
   const svgNS = 'http://www.w3.org/2000/svg';
   function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; }
   function icon(name, className = 'icon') { const el = document.createElementNS(svgNS, 'svg'); el.setAttribute('class', className); el.setAttribute('aria-hidden', 'true'); const use = document.createElementNS(svgNS, 'use'); use.setAttribute('href', '#' + name); el.append(use); return el; }
+  function cardArtwork(source, label) {
+    if (source && typeof source === 'object') {
+      const art = node('span','card-atlas');
+      art.setAttribute('role','img'); art.setAttribute('aria-label',label);
+      art.style.backgroundImage = `url("${source.src}")`;
+      art.style.backgroundSize = `${source.cols * 100}% ${source.rows * 100}%`;
+      art.style.backgroundPosition = `${source.x * 100 / Math.max(1,source.cols-1)}% ${source.y * 100 / Math.max(1,source.rows-1)}%`;
+      return art;
+    }
+    const image = node('img','secret-photo'); image.src = source; image.alt = label;
+    return image;
+  }
+  function showDeck() {
+    const content=node('div'); const cards=buildDeck('clash',filters());
+    content.append(node('p','deck-note',`${cards.length} Karten im aktuellen Pool. Evolutionen, Champions und Helden schaltet ihr in der Lobby dazu.`));
+    const gallery=node('div','deck-gallery');
+    cards.forEach(c=>{const entry=node('div','deck-entry');entry.append(cardArtwork(c.image,c.word),node('strong','',c.word));if(c.image?.basis)entry.append(node('small','','Basisillustration'));gallery.append(entry)});
+    content.append(gallery);openDialog('Clash-Royale-Karten',content,[{label:'Zurück zum Spiel',primary:true}]);dialog.classList.add('deck-dialog');
+  }
   function setText(selector, text) { $(selector).textContent = text; }
   function collectNames() { $$('#names input').forEach((input, i) => { names[i] = input.value; }); }
   function filters() { return {evo: $('#evo').checked, champions: $('#champions').checked, heroes: $('#heroes').checked}; }
@@ -58,7 +77,7 @@
     $('#themes').replaceChildren();
     themes.forEach((t, i) => {
       const button = node('button','theme-card'); button.type = 'button'; button.dataset.theme = t.id; button.style.setProperty('--theme', t.color); button.setAttribute('aria-pressed',String(t.id === theme));
-      const art = node('span','theme-art'); art.append(node('span','art-index',String(i + 1).padStart(2,'0')),icon(t.icon));
+      const art = node('span','theme-art'); const thumb=node('img');thumb.src=themeImages[t.id];thumb.alt='';thumb.loading='lazy';thumb.addEventListener('error',()=>thumb.replaceWith(node('span','theme-art-fallback',t.name)),{once:true});art.append(thumb);
       const check = node('span','selection-check'); check.append(icon('check')); check.setAttribute('aria-hidden','true');
       const copy = node('span','theme-copy'); const size = t.id === 'custom' ? 'EURE EIGENEN BEGRIFFE' : `${buildDeck(t.id, filters()).length} BEGRIFFE`;
       copy.append(node('strong','',t.name),node('small','',t.sub),node('span','theme-count',size)); button.append(art,check,copy);
@@ -86,13 +105,13 @@
     $('#setup-error').hidden = true;
   }
   function showView(id, focusSelector) {
-    hideSecret(); $$('.view').forEach(el => { el.hidden = el.id !== id; });
+    hideSecret(true); $$('.view').forEach(el => { el.hidden = el.id !== id; });
     setText('#breadcrumb',id === 'setup-view' ? 'NEUE RUNDE' : id === 'result-view' ? 'AUFLÖSUNG' : 'RUNDE LÄUFT');
     window.scrollTo({top:0,behavior:'instant'});
     if (focusSelector) $(focusSelector).focus({preventScroll:true});
   }
   function openDialog(title, content, actions = []) {
-    hideSecret(); setText('#dialog-title', title); $('#dialog-body').replaceChildren(); $('#dialog-actions').replaceChildren();
+    hideSecret(true); dialog.classList.remove('deck-dialog'); setText('#dialog-title', title); $('#dialog-body').replaceChildren(); $('#dialog-actions').replaceChildren();
     if (typeof content === 'string') $('#dialog-body').append(node('p','',content)); else $('#dialog-body').append(content);
     for (const action of actions) { const button = node('button','button ' + (action.danger ? 'danger' : action.primary ? 'primary' : 'secondary'),action.label); button.addEventListener('click', () => { dialog.close(); if (action.run) action.run(); }); $('#dialog-actions').append(button); }
     if (!dialog.open) dialog.showModal();
@@ -117,21 +136,34 @@
   }
   function revealSecret() {
     if (!game || game.phase !== 'reveal' || dialog.open || document.hidden) return;
-    secretShown = true; const secret = game.secret(); const content = $('#secret-content'); content.replaceChildren(); content.classList.toggle('danger-card',secret.danger);
-    content.append(node('span','secret-role',secret.role.toLocaleUpperCase('de')));
-    const art = icon(secret.danger ? 'eye' : themes.find(t => t.id === theme).icon, 'secret-icon');
+    clearTimeout(hideTimer); secretShown = true;
+    const secret = game.secret(); const content = $('#secret-content'); const inner=node('span','secret-inner');
+    content.replaceChildren(inner);content.classList.toggle('danger-card',secret.danger);content.classList.toggle('is-clash',theme==='clash'&&!secret.danger);
+    inner.append(node('span','secret-role',secret.role.toLocaleUpperCase('de')));
     if (secret.image) {
-      const image = node('img'); image.alt = ''; image.src = secret.image; image.referrerPolicy = 'no-referrer';
-      image.addEventListener('error', () => image.replaceWith(art), {once:true}); content.append(image);
-    } else content.append(art);
-    content.append(node('strong','secret-word',secret.word));
-    if (secret.hint) { const hint = node('span','secret-hint'); hint.append(node('small','','DEIN TIPP'),node('span','',secret.hint)); content.append(hint); }
-    else content.append(node('span','secret-safe',mode === 'undercover' ? 'Niemand kennt die eigene Rolle.' : secret.danger ? 'Hör zu. Bluffe. Bleib unentdeckt.' : 'Verrate den Begriff nicht.'));
-    content.hidden = false; $('#secret-cover').hidden = true; $('#secret-card').classList.add('revealed'); $('#next-player').disabled = false;
+      inner.append(cardArtwork(secret.image,secret.word));
+    } else if (secret.danger) {
+      const image=node('img','imposter-face-image');image.src='assets/images/card-back.webp';image.alt='';inner.append(image);
+    } else {
+      const image=node('img','secret-photo'); image.src=themeImages[theme];image.alt='';
+      if(['minecraft','pokemon'].includes(theme))image.classList.add('item-art');
+      inner.append(image);
+    }
+    inner.append(node('strong','secret-word',secret.word));
+    if(secret.hint){const hint=node('span','secret-hint');hint.append(node('small','','DEIN TIPP'),node('span','',secret.hint));inner.append(hint)}
+    else inner.append(node('span','secret-safe',mode==='undercover'?'Begriff merken. Rolle bleibt geheim.':secret.danger?'Hör den anderen genau zu.':'Verrate den Begriff nicht.'));
+    if(secret.image?.basis)inner.append(node('small','art-credit','Evolution mit Basisillustration'));
+    content.hidden=false;content.setAttribute('aria-hidden','false');$('#secret-cover').hidden=false;$('#secret-cover').setAttribute('aria-hidden','true');$('#secret-card').classList.add('revealed');$('#next-player').disabled=false;
     setText('#accessible-reveal','Karte wieder verdecken');
   }
-  function hideSecret() {
-    secretShown = false; heldPointer = null; $('#secret-content').hidden = true; $('#secret-content').replaceChildren(); $('#secret-cover').hidden = false; $('#secret-card').classList.remove('revealed'); setText('#accessible-reveal','Karte per Klick anzeigen');
+  function hideSecret(immediate) {
+    clearTimeout(hideTimer);secretShown=false;heldPointer=null;
+    // Clear sensitive text and artwork before the return flip, including on blur/cancel.
+    $('#secret-content').replaceChildren();$('#secret-content').setAttribute('aria-hidden','true');
+    $('#secret-cover').hidden=false;$('#secret-cover').setAttribute('aria-hidden','false');$('#secret-card').classList.remove('revealed');
+    if(immediate===true)$('#secret-content').hidden=true;
+    else hideTimer=setTimeout(()=>{if(!secretShown)$('#secret-content').hidden=true},280);
+    setText('#accessible-reveal','Karte per Klick anzeigen');
   }
   function nextPlayer() { hideSecret(); if (!game || !game.next()) return; if (game.phase === 'discussion') beginDiscussion(); else renderTurn(); }
   function stopTimer() { clearInterval(timer.interval); timer.interval = null; }
@@ -172,7 +204,7 @@
   }
   function renderResult() {
     stopTimer(); showView('result-view'); const won = game.winner === 'team';
-    setText('#result-title',won ? 'GUT DURCHSCHAUT.' : 'GUT GEBLUFFT.'); setText('#result-subtitle',won ? 'Das Team gewinnt. Ihr habt alle Imposter gefunden.' : 'Die Imposter gewinnen. Sie sind jetzt mindestens so viele wie das übrige Team.');
+    setText('#result-title',won ? 'Das Team gewinnt.' : 'Die Imposter gewinnen.'); setText('#result-subtitle',won ? 'Das Team gewinnt. Ihr habt alle Imposter gefunden.' : 'Die Imposter gewinnen. Sie sind jetzt mindestens so viele wie das übrige Team.');
     $('#result-emblem use').setAttribute('href',won ? '#shield' : '#eye'); $('#result-emblem').style.color = won ? 'var(--accent)' : 'var(--red)';
     setText('#result-word',game.entry.word); $('#alternate-recap').hidden = mode !== 'undercover'; setText('#alternate-recap',`Begriff der Imposter: ${game.entry.alternate || ''}`);
     $('#result-roster').replaceChildren(); game.players.forEach(p => { const row = node('div','result-person'); row.append(avatar(p),node('span','',p.name),node('span','role-tag' + (p.imposter ? ' imposter' : ''),p.imposter ? 'IMPOSTER' : 'TEAM')); $('#result-roster').append(row); }); $('#result-title').focus({preventScroll:true});
@@ -193,7 +225,7 @@
   window.addEventListener('blur',hideSecret); document.addEventListener('visibilitychange',()=>{hideSecret();if(game?.phase==='discussion')renderTimer()}); document.addEventListener('keydown',e=>{document.body.classList.add('keyboard');if(e.key==='Escape')hideSecret()}); document.addEventListener('pointerdown',()=>document.body.classList.remove('keyboard'),{passive:true});
   $('#timer-pause').addEventListener('click',()=>{if(!timer.paused){renderTimer();timer.paused=true;stopTimer()}else{timer.paused=false;timer.deadline=Date.now()+timer.remaining;stopTimer();timer.interval=setInterval(renderTimer,250)}renderTimer()}); $('#timer-reset').addEventListener('click',startTimer); $('#go-vote').addEventListener('click',goVote);
   $('#back-discussion').addEventListener('click',()=>{game.phase='discussion';beginDiscussion(false)}); $('#confirm-vote').addEventListener('click',confirmVote); $('#continue-round').addEventListener('click',()=>{game.discuss();beginDiscussion()});
-  $('#play-again').addEventListener('click',startGame); $('#new-setup').addEventListener('click',returnToSetup); $$('.exit-game').forEach(b=>b.addEventListener('click',askExit)); $('#nav-play').addEventListener('click',()=>{if(!game)$('#main').focus();else askExit()});
+  $('#view-deck').addEventListener('click',showDeck); $('#play-again').addEventListener('click',startGame); $('#new-setup').addEventListener('click',returnToSetup); $$('.exit-game').forEach(b=>b.addEventListener('click',askExit)); $('#nav-play').addEventListener('click',()=>{if(!game)$('#main').focus();else askExit()});
   $$('[data-help]').forEach(button=>button.addEventListener('click',rules)); $('#dialog-close').addEventListener('click',()=>dialog.close()); dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()}});
   restoreSetup(); renderNames(); if(!$('#imposter-count').options.length)renderImposters(); renderThemes(); renderModes(); updateSelection();
 })();
