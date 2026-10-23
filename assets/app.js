@@ -108,7 +108,7 @@
       const button = node('button','theme-card'); button.type = 'button'; button.dataset.theme = t.id; button.style.setProperty('--theme', t.color); button.setAttribute('aria-pressed',String(t.id === theme));
       const art = node('span','theme-art'); const thumb=node('img');thumb.src=themeImages[t.id];thumb.alt='';thumb.loading='lazy';thumb.addEventListener('error',()=>thumb.replaceWith(node('span','theme-art-fallback',t.name)),{once:true});
       if(['minecraft','pokemon'].includes(t.id)){
-        art.classList.add('theme-collage');const pool=buildDeck(t.id);const picks=t.id==='minecraft'?['Diamant','Creeper','Ofen']:['Glurak','Pikachu','Evoli'];
+        art.classList.add('theme-collage');const pool=buildDeck(t.id);const picks=t.id==='minecraft'?['Nether','Diamant','Spitzhacke']:['Glurak','Pikachu','Evoli'];
         picks.forEach(word=>{const entry=pool.find(c=>c.word===word);if(entry?.image){const picture=cardArtwork(entry.image,'');picture.setAttribute('aria-hidden','true');art.append(picture)}});
       }else art.append(thumb);
       const check = node('span','selection-check'); check.append(icon('check')); check.setAttribute('aria-hidden','true');
