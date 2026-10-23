@@ -6,7 +6,6 @@
   const {themes, modes, buildDeck, themeImages} = window.ImposterData;
   const {Game, maxImposters, shuffle} = window.ImposterEngine;
   const colors = ['#b5a0ed','#86bda3','#89b4df','#e6ac7b','#c490c4','#c6c978','#84bcbc','#df99a4','#a49ce0','#a3bf80','#caad96','#91a9bd'];
-  const storageKey = 'imposter-after-dark-setup-v1';
   let count = 6, names = Array(12).fill(''), theme = 'clash', mode = 'classic';
   let game = null, selectedVote = null, previousWord = '', secretShown = false, heldPointer = null, hideTimer = 0;
   let timer = {length: 180, remaining: 180000, deadline: 0, paused: false, interval: null};
@@ -45,32 +44,54 @@
   function collectNames() { $$('#names input').forEach((input, i) => { names[i] = input.value; }); }
   function filters() { return {evo: $('#evo').checked, champions: $('#champions').checked, heroes: $('#heroes').checked}; }
   function deck() { return buildDeck(theme, filters(), $('#custom-words').value); }
-  function saveSetup() {
-    collectNames();
-    try { localStorage.setItem(storageKey, JSON.stringify({count, names, theme, mode, imposters: Number($('#imposter-count').value), filters: filters(), hints: $('#hints').checked, anonymous: $('#anonymous').checked, timer: Number($('#timer-setting').value), custom: $('#custom-words').value})); } catch (_) { /* Private modes can deny storage. Gameplay still works. */ }
+  const preferences=window.ImposterPreferences;
+  let storage=null;try{storage=window.localStorage}catch(_){}
+  let hasSavedSetup=false,storageAvailable=true,setupStep=0,stepAnimation=null,dealAnimation=null;
+  function setupSettings(){return{count,names:[...names],theme,mode,imposters:Number($('#imposter-count').value)||1,filters:filters(),hints:$('#hints').checked,anonymous:$('#anonymous').checked,timer:Number($('#timer-setting').value),custom:$('#custom-words').value}}
+  function updateSavedGroup(){
+    const active=names.slice(0,count);const usable=hasSavedSetup&&active.some(n=>n.trim());
+    $('#saved-group').hidden=setupStep!==0||!usable;
+    setText('#saved-names',active.map((n,i)=>n.trim()||`Person ${i+1}`).join(' · '));
+    const label=$('.saved-label');label.lastChild.textContent=storageAvailable?'Gruppe gespeichert':'Gruppe für diese Sitzung';
+    const message=storageAvailable?'Namen und Regeln sind auf diesem Gerät gespeichert.':'Der Browser erlaubt kein dauerhaftes Speichern. Die Gruppe bleibt für diese Sitzung erhalten.';
+    const feedback=$('#save-feedback span');if(feedback.textContent!==message)feedback.textContent=message;
   }
-  function restoreSetup() {
-    try {
-      const p = JSON.parse(localStorage.getItem(storageKey) || 'null');
-      if (!p || typeof p !== 'object') return;
-      if (Number.isInteger(p.count) && p.count >= 3 && p.count <= 12) count = p.count;
-      if (Array.isArray(p.names)) names = Array.from({length: 12}, (_, i) => typeof p.names[i] === 'string' ? p.names[i].slice(0, 28) : '');
-      if (themes.some(t => t.id === p.theme)) theme = p.theme;
-      if (modes.some(m => m.id === p.mode)) mode = p.mode;
-      if (p.filters && typeof p.filters === 'object') ['evo','champions','heroes'].forEach(k => { if (typeof p.filters[k] === 'boolean') $('#' + k).checked = p.filters[k]; });
-      if (typeof p.hints === 'boolean') $('#hints').checked = p.hints;
-      if (typeof p.anonymous === 'boolean') $('#anonymous').checked = p.anonymous;
-      if ([0,60,180,300].includes(p.timer)) $('#timer-setting').value = String(p.timer);
-      if (typeof p.custom === 'string') $('#custom-words').value = p.custom.slice(0,12000);
-      renderImposters(p.imposters);
-    } catch (_) { /* Ignore outdated or invalid preferences. */ }
+  function saveSetup(){collectNames();storageAvailable=preferences.save(storage,setupSettings());hasSavedSetup=true;updateSavedGroup()}
+  function restoreSetup(){
+    const loaded=preferences.load(storage);const p=loaded.settings;storageAvailable=loaded.available;hasSavedSetup=loaded.saved;
+    count=p.count;names=[...p.names];theme=p.theme;mode=p.mode;
+    for(const key of ['evo','champions','heroes'])$('#'+key).checked=p.filters[key];
+    $('#hints').checked=p.hints;$('#anonymous').checked=p.anonymous;$('#timer-setting').value=String(p.timer);$('#custom-words').value=p.custom;renderImposters(p.imposters);
+  }
+  function canAnimate(){return !matchMedia('(prefers-reduced-motion: reduce)').matches&&!document.body.classList.contains('keyboard')}
+  function setSetupStep(next,{focus=true,animate=true}={}){
+    collectNames();const previous=setupStep;setupStep=Math.max(0,Math.min(2,next));
+    $$('.setup-step').forEach(el=>el.hidden=Number(el.dataset.step)!==setupStep);
+    $$('[data-setup-step]').forEach(button=>{if(Number(button.dataset.setupStep)===setupStep)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')});
+    $('#step-indicator').style.transform=`translateX(${setupStep*100}%)`;
+    $('#setup-back').disabled=setupStep===0;$('#setup-next').hidden=setupStep===2;$('#start-game').hidden=setupStep!==2;
+    $('#setup-next').firstChild.textContent=setupStep===0?'Weiter zu Mitspieler':'Weiter zu Regeln';
+    $('#setup-error').hidden=true;updateSavedGroup();
+    if(stepAnimation)stepAnimation.cancel();
+    const active=$(`[data-step="${setupStep}"]`);
+    if(animate&&previous!==setupStep&&canAnimate()&&active.animate)stepAnimation=active.animate([{opacity:.25,transform:`translateX(${setupStep>previous?12:-12}px)`},{opacity:1,transform:'translateX(0)'}],{duration:200,easing:'cubic-bezier(.23,1,.32,1)'});
+    if(focus){const heading=$(['#theme-title','#party-title','#rules-title'][setupStep]);heading.focus({preventScroll:true});window.scrollTo({top:Math.max(0,$('.setup-progress').getBoundingClientRect().top+window.scrollY-10),behavior:'instant'})}
+  }
+  function showSetupError(message,step){setSetupStep(step);setText('#setup-error',message);$('#setup-error').hidden=false;$('#setup-error').scrollIntoView({block:'center',behavior:'instant'})}
+  function readGameConfig(){return{names:names.slice(0,count).map((n,i)=>n.trim()||`Person ${i+1}`),imposters:Number($('#imposter-count').value),mode,theme,filters:filters(),custom:$('#custom-words').value,hints:$('#hints').checked,anonymous:$('#anonymous').checked,seconds:mode==='blitz'?60:Number($('#timer-setting').value)}}
+  function nextSetupStep(){
+    collectNames();const config=readGameConfig();const pool=deck();
+    if(setupStep===0&&pool.length<6){showSetupError('Ihr braucht mindestens 6 verschiedene Begriffe.',0);return}
+    if(setupStep===1){const error=window.ImposterEngine.validate(config,pool);if(error){showSetupError(error,/Begriff|Partner/.test(error)?0:1);return}}
+    saveSetup();setSetupStep(setupStep+1);
   }
   function renderNames() {
     $('#names').replaceChildren();
     for (let i = 0; i < count; i++) {
       const field = node('div','name-field'); const input = node('input'); const label = node('label','',`Name von Person ${i + 1}`);
       input.id = `player-${i}`; label.htmlFor = input.id; input.value = names[i]; input.placeholder = `Person ${i + 1}`; input.maxLength = 28; input.autocomplete = 'off'; input.spellcheck = false;
-      input.addEventListener('input', saveSetup);
+      input.enterKeyHint=i===count-1?'done':'next';input.autocapitalize='words';
+      input.addEventListener('input',saveSetup);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();if(i<count-1)$('#player-'+(i+1)).focus();else input.blur()}});
       field.append(label,node('span','name-number',String(i + 1).padStart(2,'0')),input); $('#names').append(field);
     }
     setText('#player-count', count); $('#players-minus').disabled = count === 3; $('#players-plus').disabled = count === 12;
@@ -111,7 +132,7 @@
     const selectedTheme = themes.find(t => t.id === theme); const selectedMode = modes.find(m => m.id === mode);
     const imposters = Number($('#imposter-count').value);
     setText('#start-summary', `${selectedTheme.name} · ${selectedMode.name} · ${count} Personen · ${imposters} Imposter`);
-    $('#setup-error').hidden = true;
+    $('#setup-error').hidden = true;updateSavedGroup();
   }
   function showView(id, focusSelector) {
     hideSecret(true); $$('.view').forEach(el => { el.hidden = el.id !== id; });
@@ -132,10 +153,16 @@
     content.append(steps,node('p','','Das Team gewinnt, wenn alle Imposter gefunden sind. Die Imposter gewinnen, sobald sie mindestens so viele sind wie die übrigen Teammitglieder.'),node('p','','Undercover: Die Imposter sehen einen ähnlichen Begriff. Niemand erfährt vor der Auflösung die eigene Rolle. Blitzrunde: Ein Hinweis pro Person, dann nach 60 Sekunden abstimmen. Eigene Begriffe sind für die Person, die sie eingibt, natürlich bereits bekannt.'));
     openDialog('Einer blufft. Findet ihn.', content, [{label:'Alles klar. Los geht’s.',primary:true}]);
   }
-  function startGame() {
-    collectNames();
-    const config = {names:names.slice(0,count).map((n,i) => n.trim() || `Person ${i+1}`),imposters:Number($('#imposter-count').value),mode,hints:$('#hints').checked,anonymous:$('#anonymous').checked,seconds:mode === 'blitz' ? 60 : Number($('#timer-setting').value)};
-    try { const nextGame = new Game(config,deck(),{previousWord}); stopTimer(); game = nextGame; previousWord = game.entry.word; saveSetup(); renderTurn(); } catch (error) { setText('#setup-error',error.message); $('#setup-error').hidden = false; $('#setup-error').scrollIntoView({block:'center',behavior:'instant'}); }
+  function startGame(){
+    collectNames();const config=readGameConfig();
+    try{const nextGame=new Game(config,buildDeck(config.theme,config.filters,config.custom),{previousWord});
+      names.splice(0,count,...config.names);renderNames();saveSetup();stopTimer();game=nextGame;previousWord=game.entry.word;renderTurn();
+    }catch(error){showSetupError(error.message,/Begriff|Partner/.test(error.message)?0:1)}
+  }
+  function restartGame(){
+    if(!game||game.phase!=='result')return;
+    const config={...game.config,names:[...game.config.names]};
+    try{const nextGame=new Game(config,buildDeck(config.theme,config.filters,config.custom),{previousWord});stopTimer();game=nextGame;previousWord=game.entry.word;renderTurn()}catch(error){returnToSetup();showSetupError(error.message,0)}
   }
   function renderTurn() {
     const p = game.players[game.turn]; showView('reveal-view'); setText('#turn-title',p.name); $('#turn-title').style.color = colors[p.id];
@@ -143,6 +170,8 @@
     $('#handoff-dots').replaceChildren(); game.players.forEach((_,i) => $('#handoff-dots').append(node('i',i < game.turn ? 'done' : i === game.turn ? 'current' : '')));
     $('#next-player').firstChild.textContent = game.turn === game.players.length-1 ? 'Alle bereit. Los geht’s.' : 'Gesehen. Weitergeben.';
     $('#turn-title').focus({preventScroll:true});
+    if(dealAnimation)dealAnimation.cancel();
+    if(canAnimate()&&$('.card-perspective').animate)dealAnimation=$('.card-perspective').animate([{opacity:.3,transform:'translateY(12px) rotate(-2deg)'},{opacity:1,transform:'translateY(0) rotate(0deg)'}],{duration:240,easing:'cubic-bezier(.23,1,.32,1)'});
   }
   function revealSecret() {
     if (!game || game.phase !== 'reveal' || dialog.open || document.hidden) return;
@@ -219,7 +248,7 @@
     setText('#result-word',game.entry.word); $('#alternate-recap').hidden = mode !== 'undercover'; setText('#alternate-recap',`Begriff der Imposter: ${game.entry.alternate || ''}`);
     $('#result-roster').replaceChildren(); game.players.forEach(p => { const row = node('div','result-person'); row.append(avatar(p),node('span','',p.name),node('span','role-tag' + (p.imposter ? ' imposter' : ''),p.imposter ? 'IMPOSTER' : 'TEAM')); $('#result-roster').append(row); }); $('#result-title').focus({preventScroll:true});
   }
-  function returnToSetup() { stopTimer(); game = null; showView('setup-view','#party-title'); }
+  function returnToSetup(){stopTimer();game=null;showView('setup-view');setSetupStep(1);updateSavedGroup()}
   function askExit() { if (!game || game.phase === 'result') returnToSetup(); else openDialog('Die Runde beenden?','Die Rollen und der aktuelle Spielstand werden verworfen. Eure Namen und Einstellungen bleiben erhalten.',[{label:'Weiterspielen'},{label:'Zur Lobby',danger:true,run:returnToSetup}]); }
   $('#players-minus').addEventListener('click',()=>{if(count<=3)return;collectNames();count--;renderNames();renderImposters();updateSelection();saveSetup()});
   $('#players-plus').addEventListener('click',()=>{if(count>=12)return;collectNames();count++;renderNames();renderImposters();updateSelection();saveSetup()});
@@ -235,7 +264,12 @@
   window.addEventListener('blur',hideSecret); document.addEventListener('visibilitychange',()=>{hideSecret();if(game?.phase==='discussion')renderTimer()}); document.addEventListener('keydown',e=>{document.body.classList.add('keyboard');if(e.key==='Escape')hideSecret()}); document.addEventListener('pointerdown',()=>document.body.classList.remove('keyboard'),{passive:true});
   $('#timer-pause').addEventListener('click',()=>{if(!timer.paused){renderTimer();timer.paused=true;stopTimer()}else{timer.paused=false;timer.deadline=Date.now()+timer.remaining;stopTimer();timer.interval=setInterval(renderTimer,250)}renderTimer()}); $('#timer-reset').addEventListener('click',startTimer); $('#go-vote').addEventListener('click',goVote);
   $('#back-discussion').addEventListener('click',()=>{game.phase='discussion';beginDiscussion(false)}); $('#confirm-vote').addEventListener('click',confirmVote); $('#continue-round').addEventListener('click',()=>{game.discuss();beginDiscussion()});
-  $('#view-deck').addEventListener('click',showDeck); $('#play-again').addEventListener('click',startGame); $('#new-setup').addEventListener('click',returnToSetup); $$('.exit-game').forEach(b=>b.addEventListener('click',askExit)); $('#nav-play').addEventListener('click',()=>{if(!game)$('#main').focus();else askExit()});
+  $('#view-deck').addEventListener('click',showDeck); $('#play-again').addEventListener('click',restartGame); $('#new-setup').addEventListener('click',returnToSetup); $$('.exit-game').forEach(b=>b.addEventListener('click',askExit)); $('#nav-play').addEventListener('click',()=>{if(!game)$('#main').focus();else askExit()});
   $$('[data-help]').forEach(button=>button.addEventListener('click',rules)); $('#dialog-close').addEventListener('click',()=>dialog.close()); dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()}});
-  restoreSetup(); renderNames(); if(!$('#imposter-count').options.length)renderImposters(); renderThemes(); renderModes(); updateSelection();
+  $$('[data-setup-step]').forEach(b=>b.addEventListener('click',()=>setSetupStep(Number(b.dataset.setupStep))));
+  $('#setup-back').addEventListener('click',()=>setSetupStep(setupStep-1));$('#setup-next').addEventListener('click',nextSetupStep);
+  $('#quick-start').addEventListener('click',startGame);$('#edit-saved').addEventListener('click',()=>setSetupStep(1));
+  window.addEventListener('pagehide',saveSetup);
+  if(window.visualViewport){const syncKeyboard=()=>document.body.classList.toggle('keyboard-open',!!document.activeElement?.matches('#names input,textarea')&&window.visualViewport.height<window.innerHeight*.75);window.visualViewport.addEventListener('resize',syncKeyboard);document.addEventListener('focusout',()=>requestAnimationFrame(syncKeyboard))}
+  restoreSetup(); renderNames(); if(!$('#imposter-count').options.length)renderImposters(); renderThemes(); renderModes(); updateSelection();setSetupStep(0,{focus:false,animate:false});
 })();

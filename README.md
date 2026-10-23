@@ -25,7 +25,7 @@ Mindestens sechs unterschiedliche Begriffe sind nötig. Undercover verlangt für
 
 ## Spielen
 
-1. Thema, Modus, Namen und Anzahl der Imposter wählen.
+1. In drei Schritten Thema, Mitspieler und Regeln wählen. Eine gespeicherte Gruppe kann direkt starten.
 2. Jede Person hält ihre Karte gedrückt, liest den Begriff und lässt vor der Übergabe los. Mit Leertaste oder Enter geht es ebenfalls. Alternativ kann die Karte per Klick aufgedeckt und wieder verdeckt werden.
 3. Die angezeigte Person beginnt. Reihum einen kurzen Hinweis geben, ohne den Begriff zu nennen.
 4. In der Gruppe diskutieren und abstimmen. Die Person mit den meisten Stimmen auf dem Gerät auswählen und den Ausschluss bestätigen. Bei Gleichstand erst weiterdiskutieren.
@@ -43,21 +43,24 @@ Optional über einen lokalen Server:
 python3 -m http.server 8000
 ```
 
-Namen und Einstellungen werden, soweit der Browser es erlaubt, in `localStorage` auf dem Gerät gespeichert. Rollen, gezogene Begriffe und laufende Spielstände werden nicht gespeichert. Beim Neuladen beginnt eine neue Rollenverteilung. Beim Verlassen des Fensters oder Wechseln des Tabs werden aufgedeckte Karten sofort verdeckt. Die Verdeckung schützt vor versehentlichem Mitlesen, nicht vor absichtlichem Untersuchen des Browsercodes.
+Namen und Einstellungen werden nach jeder Änderung, soweit der Browser es erlaubt, in `localStorage` auf dem Gerät gespeichert. Die Namen bleiben als editierbare Feldwerte erhalten, auch nach dem Neuladen. Bei einer kleineren Gruppe werden die vorübergehend ausgeblendeten Namen nicht gelöscht. „Neue Runde, gleiche Gruppe“ übernimmt Namen, Thema und Regeln der beendeten Runde und lost neu aus. Rollen, gezogene Begriffe und laufende Spielstände werden nicht gespeichert. Beim Neuladen beginnt eine neue Rollenverteilung. Beim Verlassen des Fensters oder Wechseln des Tabs werden aufgedeckte Karten sofort verdeckt. Die Verdeckung schützt vor versehentlichem Mitlesen, nicht vor absichtlichem Untersuchen des Browsercodes.
 
 ## Dateien
 
 - `index.html`: Seitenstruktur, native Dialoge und lokale SVG-Symbole.
-- `assets/styles.css`: dunkles, responsives Layout und reduzierte Bewegung.
+- `assets/styles.css`: grundlegende Komponenten und 3D-Karten.
+- `assets/mobile.css`: Handyansicht, dreistufige Vorbereitung und dunkler Aktenstil ohne Leuchteffekte.
+- `assets/preferences.js`: geprüfte lokale Speicherung der Namen und Regeln.
 - `assets/data.js`: Karten und Begriffspaare.
 - `assets/engine.js`: Spiellogik ohne DOM-Abhängigkeit.
 - `assets/app.js`: Rollenübergabe, Einstellungen, Timer und Gruppenabstimmung.
 - `tests/engine.test.cjs`: Tests für Rollenverteilung, Spielphasen und Siegbedingungen.
+- `tests/preferences.test.cjs`: gespeicherte Namen, Regeln, Migration und Speicherfehler.
 
 ## Prüfen
 
 ```sh
-node --test tests/engine.test.cjs
+node --test tests/*.test.cjs
 ```
 
 Die Tests benötigen nur Node.js ab Version 18. GitHub Actions führt sie bei Pull Requests und Änderungen auf `main` oder `codex/**` aus. Das vorhandene GitHub-Pages-Deployment läuft weiterhin ausschließlich über `main`.
