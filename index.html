@@ -1,597 +1,104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clash Royale Imposter</title>
-<link rel="icon" type="image/png" href="https://cdns3.royaleapi.com/cdn-cgi/image/w=512,h=512,format=png,q=80/static/img/ui/league10.png">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-
-<style>
-:root {
-    --bg-dark: #0f0f13;
-    --panel-bg: rgba(30, 30, 45, 0.8);
-    --primary: #4fc3f7;
-    --text-main: #ffffff;
-    --text-muted: #a0a0b0;
-    --hint-color: #f1c40f;
-    --danger: #ff4757;
-}
-
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at top center, #1f2235, #000000);
-    color: var(--text-main);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-h1 {
-    font-weight: 800;
-    margin-bottom: 5px;
-    background: linear-gradient(to right, #fff, #4fc3f7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-transform: uppercase;
-    font-size: 26px;
-    text-align: center;
-}
-
-.panel {
-    background: var(--panel-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 25px;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
-}
-
-.settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.toggle-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.toggle-item {
-    background: rgba(0,0,0,0.3);
-    padding: 10px 5px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.toggle-item label {
-    font-size: 9px;
-    text-transform: uppercase;
-    margin-top: 5px;
-    color: var(--text-muted);
-    text-align: center;
-}
-
-label.section-label {
-    display: block;
-    margin-top: 15px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--primary);
-    font-weight: 600;
-}
-
-select, input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.4);
-    color: white;
-    font-family: inherit;
-    outline: none;
-}
-
-.name-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.name-row span { width: 20px; font-size: 12px; color: var(--text-muted); }
-
-button {
-    margin-top: 20px;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 800;
-    border: none;
-    border-radius: 15px;
-    background: linear-gradient(135deg, #4fc3f7, #0288d1);
-    color: white;
-    cursor: pointer;
-    text-transform: uppercase;
-    box-shadow: 0 5px 20px rgba(79, 195, 247, 0.4);
-}
-
-#game, #voteScreen { width: 100%; max-width: 450px; text-align: center; }
-
-#currentPlayer {
-    font-size: 36px;
-    margin: 15px 0;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-.card-container { width: 220px; height: 310px; margin: 20px auto; perspective: 1000px; }
-.card {
-    width: 100%; height: 100%; position: relative; border-radius: 20px;
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d;
-    cursor: pointer;
-}
-.card.flipped { transform: rotateY(180deg); }
-
-.face {
-    position: absolute; width: 100%; height: 100%;
-    backface-visibility: hidden; border-radius: 20px; overflow: hidden;
-    border: 5px solid rgba(255,255,255,0.1);
-}
-
-.front {
-    background-color: #333;
-    display: flex; align-items: center; justify-content: center;
-}
-.front img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: luminosity; opacity: 0.7; }
-
-.back { transform: rotateY(180deg); background: #000; display: flex; align-items: center; justify-content: center; }
-.back img { width: 100%; height: 100%; object-fit: cover; }
-
-.word-badge {
-    position: absolute; bottom: 15px; background: rgba(0,0,0,0.9);
-    color: #fff; padding: 10px 20px; border-radius: 30px; font-weight: 700;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-.imposter-card {
-    background: radial-gradient(circle, #ff0044, #330000);
-    width: 100%; height: 100%; display: flex; align-items: center;
-    justify-content: center; flex-direction: column;
-    padding: 20px;
-    text-align: center;
-}
-
-.imposter-hint-box {
-    margin-top: 20px;
-    padding: 10px;
-    background: rgba(0,0,0,0.5);
-    border: 1px dashed var(--hint-color);
-    border-radius: 10px;
-    color: var(--hint-color);
-    font-size: 13px;
-    line-height: 1.3;
-}
-
-/* Voting Styles */
-.vote-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.vote-btn {
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-top: 0;
-    box-shadow: none;
-}
-
-.vote-btn:active { transform: scale(0.95); }
-
-.status-bar {
-    background: rgba(0,0,0,0.4);
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    margin-bottom: 10px;
-    color: var(--text-muted);
-}
-
-.hidden { display: none !important; }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0b0c12">
+<meta name="description" content="Ein Begriff, geheime Rollen und jede Menge Verdacht. Spielt Imposter mit Clash Royale, Minecraft, Pokémon, Filmen oder eigenen Begriffen. Gemeinsam an einem Gerät.">
+<title>Imposter After Dark | Das Partyspiel für eure Runde</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/styles.css">
+<script defer src="assets/data.js"></script>
+<script defer src="assets/engine.js"></script>
+<script defer src="assets/app.js"></script>
 </head>
-
 <body>
-
-<h1>Clash Royale <span style="color:var(--primary)">Imposter</span></h1>
-
-<div class="panel" id="setupPanel">
-    <div class="settings-grid">
-        <div>
-            <label class="section-label">Spieler</label>
-            <select id="playerCount" onchange="updateNames(); updateImposters();"></select>
-        </div>
-        <div>
-            <label class="section-label">Imposter</label>
-            <select id="imposters"></select>
-        </div>
-    </div>
-
-    <label class="section-label">Einstellungen</label>
-    <div class="toggle-container">
-        <div class="toggle-item">
-            <input type="checkbox" id="useEvo" checked>
-            <label for="useEvo">Evos</label>
-        </div>
-        <div class="toggle-item">
-            <input type="checkbox" id="useChampions" checked>
-            <label for="useChampions">Champs</label>
-        </div>
-        <div class="toggle-item">
-            <input type="checkbox" id="useHeroes" checked>
-            <label for="useHeroes">Heroes</label>
-        </div>
-        <div class="toggle-item">
-            <input type="checkbox" id="anonEject">
-            <label for="anonEject">Anon Eject</label>
-        </div>
-    </div>
-
-    <label class="section-label">Spielernamen</label>
-    <div id="names"></div>
-
-    <button onclick="start()">Spiel Starten</button>
-</div>
-
-<div id="game" class="hidden">
-    <h2 id="currentPlayer"></h2>
-    <div class="card-container">
-        <div id="card" class="card">
-            <div class="face front" id="cardFront">
-                <img src="https://static.wikia.nocookie.net/clashroyale/images/3/3a/MysteryCard.png"> 
-            </div>
-            <div class="face back" id="backFace"></div>
-        </div>
-    </div>
-    <p style="opacity:0.5; font-size:12px;">Gedrückt halten zum Ansehen</p>
-    <button onclick="next()" id="nextBtn">Nächster Spieler</button>
-</div>
-
-<div id="voteScreen" class="panel hidden">
-    <h2 style="margin-top:0;">Voting Phase</h2>
-    <div id="imposterCountDisplay" class="status-bar"></div>
-    <p style="font-size:13px; color:var(--text-muted);">Diskutiert und wählt jemanden aus:</p>
-    <div id="voteGrid" class="vote-grid"></div>
-</div>
-
-<script>
-const playerColors = ["#FF4757", "#2ED573", "#1E90FF", "#FFA502", "#E056FD", "#F1C40F", "#00D2D3", "#FF6B81", "#747d8c", "#a4b0be", "#f0932b", "#eb4d4b"];
-
-const baseCards = [
-    {n:"Knight",i:"https://royaleapi.com/static/img/cards-150/knight.png", h:["Gewöhnlich", "Mini Tank", "3 Elixir", "Defensiv", "Kein Spell"]},
-    {n:"Archers",i:"https://royaleapi.com/static/img/cards-150/archers.png", h:["Duo", "Aufteilbar", "3 Elixir", "Fernkampf", "Gewöhnlich", "Kein Spell"]},
-    {n:"Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins.png", h:["Gewöhnlich", "Schnell", "Quartett", "Gewöhnlich", "Kein Spell"]},
-    {n:"Giant",i:"https://royaleapi.com/static/img/cards-150/giant.png", h:["Tank", "Langsam", "Kein Evo", "5 Elixir", "Selten", "Groß", "Kein Spell"]},
-    {n:"P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka.png", h:["Groß", "Schwer", "Langsam", "Episch", "Kein Spell"]},
-    {n:"Minions",i:"https://royaleapi.com/static/img/cards-150/minions.png", h:["Luft", "Trio", "3 Elixir", "Gewöhnlich", "Kein Spell"]},
-    {n:"Balloon",i:"https://royaleapi.com/static/img/cards-150/balloon.png", h:["Bombe", "Tank", "Luft", "5 Elixir", "Episch", "Kein Spell"]},
-    {n:"Witch",i:"https://royaleapi.com/static/img/cards-150/witch.png", h:["Skelette", "Splash", "5 Elixir", "Spawner", "Magie", "Fernkampf", "Episch", "Kein Spell"]},
-    {n:"Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians.png", h:["5 Elixir", "Swarm", "Nahkampf", "Gewöhnlich", "Kein Spell"]},
-    {n:"Golem",i:"https://royaleapi.com/static/img/cards-150/golem.png", h:["Episch", "Groß", "Tank", "Langsam", "Kein Spell"]},
-    {n:"Skeletons",i:"https://royaleapi.com/static/img/cards-150/skeletons.png", h:["1 Elixir", "Defensiv", "Skelette", "Kein Spell"]},
-    {n:"Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie.png", h:["Ginger", "Mini Tank", "4 Elixir", "Selten", "Hat Evo", "Kein Spell"]},
-    {n:"Skeleton Army",i:"https://royaleapi.com/static/img/cards-150/skeleton-army.png", h:["Swarm", "3 Elixir", "Episch", "Hat Evo", "Kein Spell"]},
-    {n:"Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber.png", h:["Bombe", "Splash", "Kein Spell", "Hat Evo", "3 Elixir"]},
-    {n:"Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer.png", h:["Fernkampf", "Hat Evo", "Kein Spell", "4 Elixir"]},
-    {n:"Baby Dragon",i:"https://royaleapi.com/static/img/cards-150/baby-dragon.png", h:["Splash", "4 Elixir", "Kein Spell", "Episch", "Hat Evo", "Luft"]},
-    {n:"Prince",i:"https://royaleapi.com/static/img/cards-150/prince.png", h:["Charge", "Kein Evo", "5 Elixir", "Episch", "Kein Spell"]},
-    {n:"Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard.png", h:["Splash", "Fernkampf", "Selten", "5 Elixir", "Kein Spell", "Magie"]},
-    {n:"Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka.png", h:["Nahkampf", "Schnell", "4 Elixir", "Selten", "Viel Schaden", "Kein Spell"]},
-    {n:"Spear Goblins",i:"https://royaleapi.com/static/img/cards-150/spear-goblins.png", h:["Trio", "Fernkampf", "2 Elixir", "Gewöhnlich", "Kein Spell"]},
-    {n:"Giant Skeleton",i:"https://royaleapi.com/static/img/cards-150/giant-skeleton.png", h:["Bombe", "Tank", "6 Elixir", "Episch", "Kein Spell", "Groß"]},
-    {n:"Hog Rider",i:"https://royaleapi.com/static/img/cards-150/hog-rider.png", h:["Schnell", "Gebäude", "4 Elixir", "Selten", "Kein Spell"]},
-    {n:"Minion Horde",i:"https://royaleapi.com/static/img/cards-150/minion-horde.png", h:["Luft", "Swarm", "5 Elixir", "Gewöhnlich", "Kein Spell"]},
-    {n:"Ice Wizard",i:"https://royaleapi.com/static/img/cards-150/ice-wizard.png", h:["Legendär", "Slow", "Splash", "3 Elixir", "Fernkampf"]},
-    {n:"Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant.png", h:["Fernkampf", "Tank", "6 Elixir", "Gewöhnlich", "Gebäude"]},
-    {n:"Guards",i:"https://royaleapi.com/static/img/cards-150/guards.png", h:["Schild", "Trio", "3 Elixir", "Episch", "Nahkampf"]},
-    {n:"Princess",i:"https://royaleapi.com/static/img/cards-150/princess.png", h:["Fernkampf", "Legendär", "Splash", "3 Elixir", "Wenig HP"]},
-    {n:"Dark Prince",i:"https://royaleapi.com/static/img/cards-150/dark-prince.png", h:["Schild", "Charge", "4 Elixir", "Episch", "Splash"]},
-    {n:"Three Musketeers",i:"https://royaleapi.com/static/img/cards-150/three-musketeers.png", h:["Trio", "9 Elixir", "Fernkampf", "Selten", "Teuer"]},
-    {n:"Lava Hound",i:"https://royaleapi.com/static/img/cards-150/lava-hound.png", h:["Luft", "Tank", "7 Elixir", "Legendär", "Langsam"]},
-    {n:"Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit.png", h:["1 Elixir", "Freeze", "Gewöhnlich", "Springt"]},
-    {n:"Fire Spirit",i:"https://royaleapi.com/static/img/cards-150/fire-spirit.png", h:["1 Elixir", "Splash", "Gewöhnlich", "Springt"]},
-    {n:"Miner",i:"https://royaleapi.com/static/img/cards-150/miner.png", h:["Gräbt", "Legendär", "3 Elixir", "Überall platzierbar"]},
-    {n:"Sparky",i:"https://royaleapi.com/static/img/cards-150/sparky.png", h:["Viel Schaden", "6 Elixir", "Legendär", "Splash", "Langsam"]},
-    {n:"Bowler",i:"https://royaleapi.com/static/img/cards-150/bowler.png", h:["Splash", "Rückstoß", "5 Elixir", "Episch", "Boden"]},
-    {n:"Lumberjack",i:"https://royaleapi.com/static/img/cards-150/lumberjack.png", h:["Schnell", "Rage", "4 Elixir", "Legendär", "Nahkampf"]},
-    {n:"Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram.png", h:["Gebäude", "Charge", "4 Elixir", "Selten", "Duo"]},
-    {n:"Inferno Dragon",i:"https://royaleapi.com/static/img/cards-150/inferno-dragon.png", h:["Luft", "Viel Schaden", "4 Elixir", "Legendär", "Einzelziel"]},
-    {n:"Ice Golem",i:"https://royaleapi.com/static/img/cards-150/ice-golem.png", h:["Tank", "Slow", "2 Elixir", "Selten", "Boden"]},
-    {n:"Mega Minion",i:"https://royaleapi.com/static/img/cards-150/mega-minion.png", h:["Luft", "Einzelziel", "3 Elixir", "Selten", "Gepanzert"]},
-    {n:"Dart Goblin",i:"https://royaleapi.com/static/img/cards-150/dart-goblin.png", h:["Schnell", "Fernkampf", "3 Elixir", "Selten", "Wenig HP"]},
-    {n:"Goblin Gang",i:"https://royaleapi.com/static/img/cards-150/goblin-gang.png", h:["Swarm", "3 Elixir", "Gewöhnlich", "Mischung"]},
-    {n:"Electro Wizard",i:"https://royaleapi.com/static/img/cards-150/electro-wizard.png", h:["Stun", "Legendär", "4 Elixir", "Fernkampf", "Zwei Ziele"]},
-    {n:"Elite Barbarians",i:"https://royaleapi.com/static/img/cards-150/elite-barbarians.png", h:["Duo", "Schnell", "6 Elixir", "Gewöhnlich", "Nahkampf"]},
-    {n:"Hunter",i:"https://royaleapi.com/static/img/cards-150/hunter.png", h:["Fernkampf", "Splash", "4 Elixir", "Episch", "Verteidigung"]},
-    {n:"Executioner",i:"https://royaleapi.com/static/img/cards-150/executioner.png", h:["Splash", "5 Elixir", "Episch", "Axt", "Fernkampf"]},
-    {n:"Bandit",i:"https://royaleapi.com/static/img/cards-150/bandit.png", h:["Dash", "3 Elixir", "Legendär", "Nahkampf", "Unverwundbar"]},
-    {n:"Night Witch",i:"https://royaleapi.com/static/img/cards-150/night-witch.png", h:["Beschwörer", "Nahkampf", "4 Elixir", "Legendär", "Fledermäuse"]},
-    {n:"Bats",i:"https://royaleapi.com/static/img/cards-150/bats.png", h:["Luft", "Swarm", "2 Elixir", "Gewöhnlich", "Schnell"]},
-    {n:"Royal Ghost",i:"https://royaleapi.com/static/img/cards-150/royal-ghost.png", h:["Unsichtbar", "Splash", "3 Elixir", "Legendär", "Nahkampf"]},
-    {n:"Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider.png", h:["Snare", "Gebäude", "5 Elixir", "Legendär", "Charge"]},
-    {n:"Zappies",i:"https://royaleapi.com/static/img/cards-150/zappies.png", h:["Stun", "Trio", "4 Elixir", "Selten", "Fernkampf"]},
-    {n:"Rascals",i:"https://royaleapi.com/static/img/cards-150/rascals.png", h:["Trio", "5 Elixir", "Gewöhnlich", "Tank & Ranged"]},
-    {n:"Cannon Cart",i:"https://royaleapi.com/static/img/cards-150/cannon-cart.png", h:["Gebäude", "Schild", "5 Elixir", "Episch", "Fernkampf"]},
-    {n:"Flying Machine",i:"https://royaleapi.com/static/img/cards-150/flying-machine.png", h:["Luft", "Fernkampf", "4 Elixir", "Selten", "Schnell"]},
-    {n:"Tower Princess",i:"https://royaleapi.com/static/img/cards-150/tower-princess.png", h:["Tower", "Fernkampf", "Standard", "Verteidigung"]},
-    {n:"Cannoneer",i:"https://royaleapi.com/static/img/cards-150/cannoneer.png", h:["Tower", "Viel Schaden", "Langsam", "Verteidigung"]},
-    {n:"Dagger Duchess",i:"https://royaleapi.com/static/img/cards-150/dagger-duchess.png", h:["Tower", "Munition", "Schnell", "Verteidigung"]},
-    {n:"Arrows",i:"https://royaleapi.com/static/img/cards-150/arrows.png", h:["Spell", "Splash", "3 Elixir", "Gewöhnlich", "Großer Radius"]},
-    {n:"Zap",i:"https://royaleapi.com/static/img/cards-150/zap.png", h:["Spell", "Stun", "2 Elixir", "Gewöhnlich", "Schnell"]},
-    {n:"Fireball",i:"https://royaleapi.com/static/img/cards-150/fireball.png", h:["Spell", "Splash", "4 Elixir", "Selten", "Rückstoß"]},
-    {n:"Rocket",i:"https://royaleapi.com/static/img/cards-150/rocket.png", h:["Spell", "Viel Schaden", "6 Elixir", "Selten", "Kleiner Radius"]},
-    {n:"Lightning",i:"https://royaleapi.com/static/img/cards-150/lightning.png", h:["Spell", "Drei Ziele", "6 Elixir", "Episch", "Stun"]},
-    {n:"Poison",i:"https://royaleapi.com/static/img/cards-150/poison.png", h:["Spell", "Zeit", "4 Elixir", "Episch", "Splash"]},
-    {n:"Freeze",i:"https://royaleapi.com/static/img/cards-150/freeze.png", h:["Spell", "Freeze", "4 Elixir", "Episch", "Kein Schaden"]},
-    {n:"Tornado",i:"https://royaleapi.com/static/img/cards-150/tornado.png", h:["Spell", "Zieht", "3 Elixir", "Episch", "Splash"]},
-    {n:"Barbarian Barrel",i:"https://royaleapi.com/static/img/cards-150/barbarian-barrel.png", h:["Spell", "Einheit", "2 Elixir", "Episch", "Boden"]},
-    {n:"The Log",i:"https://royaleapi.com/static/img/cards-150/the-log.png", h:["Spell", "Rückstoß", "2 Elixir", "Legendär", "Boden"]},
-    {n:"Earthquake",i:"https://royaleapi.com/static/img/cards-150/earthquake.png", h:["Spell", "Gebäude", "3 Elixir", "Selten", "Slow"]},
-    {n:"Graveyard",i:"https://royaleapi.com/static/img/cards-150/graveyard.png", h:["Spell", "Skelette", "5 Elixir", "Legendär", "Überall"]},
-    {n:"Mirror",i:"https://royaleapi.com/static/img/cards-150/mirror.png", h:["Spell", "Kopie", "Variable", "Episch", "Kein eigener Effekt"]},
-    {n:"Royal Delivery",i:"https://royaleapi.com/static/img/cards-150/royal-delivery.png", h:["Spell", "Einheit", "3 Elixir", "Gewöhnlich", "Splash"]},
-    {n:"Cannon",i:"https://royaleapi.com/static/img/cards-150/cannon.png", h:["Gebäude", "3 Elixir", "Gewöhnlich", "Boden", "Verteidigung"]},
-    {n:"Goblin Hut",i:"https://royaleapi.com/static/img/cards-150/goblin-hut.png", h:["Gebäude", "Spawner", "5 Elixir", "Selten", "Fernkampf"]},
-    {n:"Mortar",i:"https://royaleapi.com/static/img/cards-150/mortar.png", h:["Gebäude", "Fernkampf", "4 Elixir", "Gewöhnlich", "Splash"]},
-    {n:"Bomb Tower",i:"https://royaleapi.com/static/img/cards-150/bomb-tower.png", h:["Gebäude", "Splash", "4 Elixir", "Selten", "Boden"]},
-    {n:"Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla.png", h:["Gebäude", "Versteckt", "4 Elixir", "Gewöhnlich", "Luft & Boden"]},
-    {n:"Elixir Collector",i:"https://royaleapi.com/static/img/cards-150/elixir-collector.png", h:["Gebäude", "Elixir", "6 Elixir", "Selten", "Produktion"]},
-    {n:"Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage.png", h:["Gebäude", "Einheit", "4 Elixir", "Selten", "Nahkampf"]},
-    {n:"Tombstone",i:"https://royaleapi.com/static/img/cards-150/tombstone.png", h:["Gebäude", "Spawner", "3 Elixir", "Selten", "Skelette"]}
-];
-
-const evoCards = [
-    {n:"Evo Barbarians",i:"https://royaleapi.com/static/img/cards-150/barbarians-ev1.png", h:["Evo", "Swarm", "Wut", "Nahkampf", "5 Elixir"]},
-    {n:"Evo Skeleton",i:"https://royaleapi.com/static/img/cards-150/skeletons-ev1.png", h:["Evo", "Vermehrung", "1 Elixir", "Skelette", "Nahkampf"]},
-    {n:"Evo Royal Giant",i:"https://royaleapi.com/static/img/cards-150/royal-giant-ev1.png", h:["Evo", "Tank", "Fernkampf", "6 Elixir", "Rückstoß"]},
-    {n:"Evo Firecracker",i:"https://royaleapi.com/static/img/cards-150/firecracker-ev1.png", h:["Evo", "Splash", "Fernkampf", "3 Elixir", "Gift-Effekt"]},
-    {n:"Evo Knight",i:"https://royaleapi.com/static/img/cards-150/knight-ev1.png", h:["Evo", "Mini Tank", "3 Elixir", "Schild-Effekt", "Nahkampf"]},
-    {n:"Evo Recruits",i:"https://royaleapi.com/static/img/cards-150/royal-recruits-ev1.png", h:["Evo", "Swarm", "Schild", "Charge", "7 Elixir"]},
-    {n:"Evo bats",i:"https://royaleapi.com/static/img/cards-150/bats-ev1.png", h:["Evo", "Luft", "Heilung", "2 Elixir", "Schnell"]},
-    {n:"Evo Archers",i:"https://royaleapi.com/static/img/cards-150/archers-ev1.png", h:["Evo", "Duo", "Fernkampf", "3 Elixir", "Doppel-Schuss"]},
-    {n:"Evo Ice Spirit",i:"https://royaleapi.com/static/img/cards-150/ice-spirit-ev1.png", h:["Evo", "Freeze", "1 Elixir", "Splash", "Mehrere Ziele"]},
-    {n:"Evo Valkyrie",i:"https://royaleapi.com/static/img/cards-150/valkyrie-ev1.png", h:["Evo", "Splash", "Anziehung", "4 Elixir", "Nahkampf"]},
-    {n:"Evo Bomber",i:"https://royaleapi.com/static/img/cards-150/bomber-ev1.png", h:["Evo", "Splash", "Abpraller", "2 Elixir", "Bombe"]},
-    {n:"Evo Wall Breakers",i:"https://royaleapi.com/static/img/cards-150/wall-breakers-ev1.png", h:["Evo", "Gebäude", "Explosion", "2 Elixir", "Schnell"]},
-    {n:"Evo Zap",i:"https://royaleapi.com/static/img/cards-150/zap-ev1.png", h:["Evo", "Stun", "2 Elixir", "Mehrfach", "Spell"]},
-    {n:"Evo Tesla",i:"https://royaleapi.com/static/img/cards-150/tesla-ev1.png", h:["Evo", "Gebäude", "Schockwelle", "4 Elixir", "Verteidigung"]},
-    {n:"Evo Battle Ram",i:"https://royaleapi.com/static/img/cards-150/battle-ram-ev1.png", h:["Evo", "Gebäude", "Rückstoß", "4 Elixir", "Charge"]},
-    {n:"Evo Wizard",i:"https://royaleapi.com/static/img/cards-150/wizard-ev1.png", h:["Evo", "Splash", "Schild", "5 Elixir", "Explosion"]},
-    {n:"Evo Goblins",i:"https://royaleapi.com/static/img/cards-150/goblins-ev1.png", h:["Evo", "Schnell", "Wurf", "2 Elixir", "Swarm"]},
-    {n:"Evo Giant",i:"https://royaleapi.com/static/img/cards-150/giant-ev1.png", h:["Evo", "Tank", "Reflexion", "5 Elixir", "Boden"]},
-    {n:"Evo Goblin Drill",i:"https://royaleapi.com/static/img/cards-150/goblin-drill-ev1.png", h:["Evo", "Gebäude", "Untergrund", "4 Elixir", "Spawner"]},
-    {n:"Evo Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer-ev1.png", h:["Evo", "Fernkampf", "Sniper", "4 Elixir", "Viel Schaden"]},
-    {n:"Evo Goblin Cage",i:"https://royaleapi.com/static/img/cards-150/goblin-cage-ev1.png", h:["Evo", "Gebäude", "Einheit", "Nahkampf", "4 Elixir"]},
-    {n:"Evo P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/pekka-ev1.png", h:["Evo", "Nahkampf", "Heilung", "7 Elixir", "Viel Schaden"]},
-    {n:"Evo Mega Knight",i:"https://royaleapi.com/static/img/cards-150/mega-knight-ev1.png", h:["Evo", "Splash", "Rückstoß", "7 Elixir", "Sprung"]},
-    {n:"Evo Electro Dragon",i:"https://royaleapi.com/static/img/cards-150/electro-dragon-ev1.png", h:["Evo", "Luft", "Ketten", "5 Elixir", "Splash"]},
-    {n:"Evo Ram Rider",i:"https://royaleapi.com/static/img/cards-150/ram-rider-ev1.png", h:["Evo", "Gebäude", "Snare", "5 Elixir", "Charge"]}
-];
-
-const championCards = [
-    {n:"Golden Knight",i:"https://royaleapi.com/static/img/cards-150/golden-knight.png", h:["Champion", "Dash", "4 Elixir", "Nahkampf", "Fähigkeit"]},
-    {n:"Skeleton King",i:"https://royaleapi.com/static/img/cards-150/skeleton-king.png", h:["Champion", "Beschwörer", "4 Elixir", "Splash", "Seelen"]},
-    {n:"Archer Queen",i:"https://royaleapi.com/static/img/cards-150/archer-queen.png", h:["Champion", "Unsichtbar", "5 Elixir", "Fernkampf", "Viel Schaden"]},
-    {n:"Mighty Miner",i:"https://royaleapi.com/static/img/cards-150/mighty-miner.png", h:["Champion", "Spurwechsel", "4 Elixir", "Tank", "Bombe"]},
-    {n:"Monk",i:"https://royaleapi.com/static/img/cards-150/monk.png", h:["Champion", "Reflektion", "5 Elixir", "Nahkampf", "Combo"]},
-    {n:"Little Prince",i:"https://royaleapi.com/static/img/cards-150/little-prince.png", h:["Champion", "Beschwörer", "3 Elixir", "Fernkampf", "Wächter"]},
-    {n:"Boss Bandit",i:"https://royaleapi.com/static/img/cards-150/boss-bandit.png", h:["Champion", "Dash", "Variable", "Nahkampf", "Event"]},
-    {n:"Goblinstein",i:"https://royaleapi.com/static/img/cards-150/goblinstein.png", h:["Champion", "Duo", "Elektro", "5 Elixir", "Fähigkeit"]}
-];
-
-const heroCards = [
-    {n:"Hero Knight",i:"https://royaleapi.com/static/img/cards-150/knight-hero.png", h:["Gold", "Viel HP", "Nahkampf", "Blau", "Spezial", "Mini Tank"]}, 
-    {n:"Hero Mini P.E.K.K.A",i:"https://royaleapi.com/static/img/cards-150/mini-pekka-hero.png", h:["Gold", "Viel Schaden", "Nahkampf", "Spezial", "Klein", "Mini Tank"]},
-    {n:"Hero Musketeer",i:"https://royaleapi.com/static/img/cards-150/musketeer-hero.png", h:["Gold", "Sniper", "Fernkampf", "Spezial", "Viel Schaden"]},
-    {n:"Hero Giant",i:"https://royaleapi.com/static/img/cards-150/giant-hero.png", h:["Gold", "Tank", "Spezial", "Groß"]}
-];
-
-let players = []; 
-let index = 0;
-let selectedCard;
-let remainingImposters = 0;
-
-function initSetup(){
-    const ps = document.getElementById("playerCount");
-    for(let i=3; i<=12; i++) ps.innerHTML += `<option ${i==6?'selected':''}>${i}</option>`;
-    updateNames();
-    updateImposters();
-}
-
-function updateNames(){
-    const c = +document.getElementById("playerCount").value;
-    const container = document.getElementById("names");
-    container.innerHTML="";
-    for(let i=1; i<=c; i++) container.innerHTML += `<div class="name-row"><span>${i}</span><input placeholder="Spieler ${i}"></div>`;
-}
-
-function updateImposters(){
-    const c = +document.getElementById("playerCount").value;
-    const sel = document.getElementById("imposters");
-    sel.innerHTML = "";
-    for(let i=1; i<=Math.floor(c/2); i++) sel.innerHTML += `<option>${i}</option>`;
-}
-
-function start(){
-    let pool = [...baseCards];
-    if(document.getElementById("useEvo").checked) pool = pool.concat(evoCards);
-    if(document.getElementById("useChampions").checked) pool = pool.concat(championCards);
-    if(document.getElementById("useHeroes").checked) pool = pool.concat(heroCards);
-
-    const inputs = [...document.querySelectorAll("#names input")];
-    const shuffledColors = shuffle([...playerColors]);
-    
-    selectedCard = pool[Math.floor(Math.random() * pool.length)];
-    const numImposters = +document.getElementById("imposters").value;
-    remainingImposters = numImposters;
-
-    // Assign roles
-    let roles = new Array(inputs.length).fill(false);
-    for(let i=0; i<numImposters; i++) roles[i] = true;
-    roles = shuffle(roles);
-
-    players = inputs.map((input, idx) => ({
-        name: input.value.trim() || input.placeholder,
-        color: shuffledColors[idx % shuffledColors.length],
-        isImposter: roles[idx],
-        alive: true
-    }));
-
-    index = 0;
-    document.getElementById("setupPanel").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    updateTurn();
-}
-
-function updateTurn(){
-    const p = players[index];
-    const nameEl = document.getElementById("currentPlayer");
-    const cardEl = document.getElementById("card");
-    const frontFace = document.getElementById("cardFront");
-
-    cardEl.classList.remove("flipped");
-    nameEl.innerText = p.name;
-    nameEl.style.color = p.color;
-    frontFace.style.backgroundColor = p.color;
-    cardEl.style.boxShadow = `0 15px 45px ${p.color}60`;
-}
-
-function next(){
-    if(index >= players.length - 1){
-        startVoting();
-        return;
-    }
-    index++;
-    updateTurn();
-}
-
-function startVoting() {
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("voteScreen").classList.remove("hidden");
-    renderVoteGrid();
-}
-
-function renderVoteGrid() {
-    const grid = document.getElementById("voteGrid");
-    const countDisplay = document.getElementById("imposterCountDisplay");
-    grid.innerHTML = "";
-    
-    countDisplay.innerText = `${remainingImposters} Imposter übrig`;
-
-    players.forEach((p, idx) => {
-        if(!p.alive) return;
-        const btn = document.createElement("button");
-        btn.className = "vote-btn";
-        btn.style.borderColor = p.color;
-        btn.innerText = p.name;
-        btn.onclick = () => eject(idx);
-        grid.appendChild(btn);
-    });
-}
-
-function eject(idx) {
-    const p = players[idx];
-    const anon = document.getElementById("anonEject").checked;
-    p.alive = false;
-
-    let message = "";
-    if (p.isImposter) {
-        remainingImposters--;
-        message = anon ? `${p.name} wurde eliminiert.` : `${p.name} war ein Imposter!`;
-    } else {
-        message = anon ? `${p.name} wurde eliminiert.` : `${p.name} war kein Imposter.`;
-    }
-
-    alert(message);
-    checkGameOver();
-}
-
-function checkGameOver() {
-    const alivePlayers = players.filter(p => p.alive);
-    const aliveImposters = alivePlayers.filter(p => p.isImposter).length;
-    const aliveCivilians = alivePlayers.length - aliveImposters;
-
-    if (aliveImposters === 0) {
-        alert("Sieg für die Zivilisten! Alle Imposter wurden gefunden.");
-        location.reload();
-    } else if (aliveImposters >= aliveCivilians) {
-        alert("Sieg für die Imposter! Sie haben die Mehrheit übernommen.");
-        location.reload();
-    } else {
-        renderVoteGrid();
-    }
-}
-
-const cardElement = document.getElementById("card");
-const backFace = document.getElementById("backFace");
-
-const flipOn = (e) => {
-    e.preventDefault();
-    cardElement.classList.add("flipped");
-    
-    if(players[index].isImposter){
-        const hint = selectedCard.h[Math.floor(Math.random() * selectedCard.h.length)];
-        backFace.innerHTML = `<div class="imposter-card">
-            <span style="font-size:60px">☠️</span>
-            <span style="font-weight:800; letter-spacing:3px;">IMPOSTER</span>
-            <div class="imposter-hint-box">
-                <small style="text-transform:uppercase; display:block; margin-bottom:4px; opacity:0.7;">Tipp zur Karte:</small>
-                <strong>${hint}</strong>
-            </div>
-        </div>`;
-    } else {
-        backFace.innerHTML = `
-            <img src="${selectedCard.i}">
-            <div class="word-badge">${selectedCard.n}</div>`;
-    }
-};
-
-const flipOff = () => cardElement.classList.remove("flipped");
-
-cardElement.addEventListener("mousedown", flipOn);
-cardElement.addEventListener("mouseup", flipOff);
-cardElement.addEventListener("touchstart", flipOn);
-cardElement.addEventListener("touchend", flipOff);
-
-function shuffle(a){
-    for(let i=a.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]] = [a[j],a[i]];
-    }
-    return a;
-}
-
-initSetup();
-</script>
+<a class="skip" href="#main">Zum Spiel</a>
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="mask" viewBox="0 0 160 120"><path d="M12 29 45 12l35 14 35-14 33 17-8 52-29 25-31-16-31 16L20 81Z"/><path d="m33 48 31 7-10 15-19-5Zm94 0-31 7 10 15 19-5Z"/><path d="m73 71 7-14 7 14M61 89l19-8 19 8"/></symbol>
+<symbol id="crown" viewBox="0 0 48 48"><path d="m7 14 9 8L24 8l8 14 9-8-5 23H12Z"/><path d="M13 41h22M17 29h14"/><circle cx="24" cy="7" r="2"/></symbol>
+<symbol id="cube" viewBox="0 0 48 48"><path d="m24 5 18 10v20L24 45 6 35V15Z"/><path d="m6 15 18 10 18-10M24 25v20M15 10l18 10"/><path d="M14 23v8l5 3M34 23v8l-5 3"/></symbol>
+<symbol id="orb" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19"/><path d="M5 24h12m14 0h12"/><circle cx="24" cy="24" r="7"/><circle cx="24" cy="24" r="2"/></symbol>
+<symbol id="film" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="4"/><path d="M14 6v36M34 6v36M6 15h8m-8 9h8m-8 9h8m20-18h8m-8 9h8m-8 9h8m-20-2V17l9 7Z"/></symbol>
+<symbol id="ball" viewBox="0 0 48 48"><circle cx="24" cy="24" r="19"/><path d="m24 14 10 7-4 11H18l-4-11Zm0 0V5M14 21l-9-3m13 14-6 8m18-8 6 8m-2-19 9-3"/></symbol>
+<symbol id="food" viewBox="0 0 48 48"><path d="M8 22c0-19 32-19 32 0Zm-2 6h36M9 34h30l-2 7H11ZM14 17h1m8-5h1m8 5h1"/></symbol>
+<symbol id="bolt" viewBox="0 0 48 48"><path d="M28 4 9 28h13l-2 16 19-25H26Z"/></symbol>
+<symbol id="edit" viewBox="0 0 48 48"><path d="m11 32 22-22 7 7-22 22-10 3Zm17-17 7 7M27 41h14"/></symbol>
+<symbol id="users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3m2-14a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 5"/></symbol>
+<symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9S4 17 4 12V6Z"/><path d="m8 12 3 3 5-6"/></symbol>
+<symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M9 2h6m-3 3v8l4 2"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3c-1 .5-1 1-1 2m0 3h.01"/></symbol>
+<symbol id="play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+<symbol id="pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
+<symbol id="back" viewBox="0 0 24 24"><path d="M20 12H4m6-6-6 6 6 6"/></symbol>
+<symbol id="refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 1 0 0 8m0-13v5h-5"/></symbol>
+</defs></svg>
+<div class="ambient" aria-hidden="true"></div>
+<div class="app-shell">
+<aside class="sidebar">
+ <a class="logo" href="./" aria-label="Imposter After Dark Startseite"><span class="logo-mark"><svg><use href="#eye"/></svg></span><span>imposter<span class="logo-sub">AFTER DARK</span></span></a>
+ <div class="side-label micro">DER SPIELRAUM</div>
+ <button class="side-item active" id="nav-play"><svg class="icon"><use href="#play"/></svg>Spielen<span class="side-dot"></span></button>
+ <button class="side-item" data-help><svg class="icon"><use href="#help"/></svg>So geht’s</button>
+ <div class="side-bottom"><div class="device-graphic" aria-hidden="true"><svg class="icon"><use href="#users"/></svg><span>+ + +</span></div><p>Ein Gerät.<br>Alle unter Verdacht.</p><span class="micro">3 BIS 12 PERSONEN · LOKAL</span><a href="https://github.com/TheSimonMC/clashroyale-imposter" class="source-link" target="_blank" rel="noopener noreferrer">Ein Projekt von RcnTV ↗</a></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><div class="breadcrumb micro">SPIELRAUM <span>/</span> <strong id="breadcrumb">NEUE RUNDE</strong></div><button class="how-link" data-help><svg class="icon"><use href="#help"/></svg><span>Spielregeln</span></button><span class="local-badge"><i></i> Gemeinsam an einem Gerät</span></header>
+<main id="main" tabindex="-1">
+<section id="setup-view" class="view">
+ <div class="hero">
+  <div class="hero-copy"><div class="eyebrow"><span></span> DAS PARTY SPIEL MIT POKERFACE</div><h1>JEDER WEISS ES.<br><em>EINER BLUFFT.</em></h1><p>Ein geheimer Begriff. Eure besten Ausreden.<br>Findet heraus, wer nur so tut, als wäre er im Bild.</p><div class="hero-meta"><span><svg class="icon"><use href="#users"/></svg>3 bis 12 Personen</span><span><svg class="icon"><use href="#clock"/></svg>5 bis 15 Minuten</span><span><svg class="icon"><use href="#lock"/></svg>Ohne Anmeldung</span></div></div>
+  <div class="hero-art" aria-hidden="true"><div class="orbital orbit-a"></div><div class="orbital orbit-b"></div><div class="hero-cross cross-a">+</div><div class="hero-cross cross-b">+</div><div class="dossier back-dossier"></div><div class="dossier middle-dossier"></div><div class="dossier main-dossier"><div class="dossier-head"><span>IDENTITÄT UNBEKANNT</span><svg class="icon"><use href="#lock"/></svg></div><svg class="hero-mask"><use href="#mask"/></svg><div class="dossier-foot"><span>VERTRAU NIEMANDEM.</span><b>?</b></div></div><span class="art-tag">VERDÄCHTIG GUTER SPIELEABEND</span></div>
+ </div>
+ <div class="setup-layout">
+  <div class="selection-column">
+   <div class="section-title"><div><span class="step-number">01</span><h2>Wählt eure Welt.</h2></div><span class="micro muted">8 THEMENWELTEN</span></div>
+   <div id="themes" class="theme-grid" role="group" aria-label="Themenwelt wählen"></div>
+   <div id="clash-options" class="clash-options"><span class="micro muted">ZUSÄTZLICHE KARTEN</span><div class="filter-chips"><label><input id="evo" type="checkbox" checked><span>Evolutionen</span></label><label><input id="champions" type="checkbox" checked><span>Champions</span></label><label><input id="heroes" type="checkbox" checked><span>Helden</span></label></div></div>
+   <div id="custom-options" class="custom-options" hidden><label for="custom-words">Eure Begriffe</label><p>Ein Begriff pro Zeile. Für Undercover: <code>Pizza | Flammkuchen | Aus dem Ofen</code>. Mindestens 6 unterschiedliche Begriffe.</p><textarea id="custom-words" rows="7" maxlength="12000" placeholder="Pizza | Flammkuchen | Aus dem Ofen&#10;Kaffee | Espresso | Hilft am Morgen"></textarea><span id="custom-count" class="micro muted">0 BEGRIFFE</span></div>
+   <div class="section-title mode-title"><div><span class="step-number">02</span><h2>Wie gut könnt ihr bluffen?</h2></div></div>
+   <div class="mode-list" id="modes" role="group" aria-label="Spielmodus wählen"></div>
+   <div class="quick-guide"><svg class="icon"><use href="#eye"/></svg><p>Alle bekommen ihren Begriff verdeckt. Gebt reihum einen Hinweis und hört genau zu. Wer redet sich raus?</p><button class="text-button" data-help>Regeln lesen <span>↗</span></button></div>
+  </div>
+  <section class="config-panel" aria-labelledby="party-title">
+   <div class="config-head"><span class="step-number">03</span><div><span class="micro muted">ALLE AN BORD?</span><h2 id="party-title" tabindex="-1">Eure Runde.</h2></div><svg class="icon"><use href="#users"/></svg></div>
+   <div class="config-body">
+    <div class="number-settings"><div><label for="player-count">Personen</label><div class="stepper"><button type="button" id="players-minus" aria-label="Eine Person weniger">−</button><output id="player-count" aria-live="polite">6</output><button type="button" id="players-plus" aria-label="Eine Person mehr">+</button></div></div><div><label for="imposter-count">Imposter</label><select id="imposter-count" aria-describedby="imposter-note"></select></div></div>
+    <p id="imposter-note" class="field-note">Mindestens eine Person blufft.</p>
+    <div class="names-label"><span class="micro muted">WER IST DABEI?</span><button id="shuffle-names" class="text-button">Reihenfolge mischen <svg class="icon"><use href="#refresh"/></svg></button></div>
+    <div id="names" class="names-grid"></div>
+    <div class="config-divider"></div>
+    <label class="switch-row" id="hint-setting"><span><strong>Kleiner Tipp für Imposter</strong><small>Ein Hinweis auf den geheimen Begriff.</small></span><input type="checkbox" id="hints" checked role="switch"><span class="toggle" aria-hidden="true"></span></label>
+    <label class="switch-row"><span><strong>Rollen erst am Ende zeigen</strong><small>Ausgeschiedene bleiben geheim.</small></span><input type="checkbox" id="anonymous" role="switch"><span class="toggle" aria-hidden="true"></span></label>
+    <div class="timer-setting"><label for="timer-setting">Zeit zum Diskutieren</label><select id="timer-setting"><option value="0">Ohne Zeitlimit</option><option value="60">1 Minute</option><option value="180" selected>3 Minuten</option><option value="300">5 Minuten</option></select></div>
+    <p id="setup-error" class="form-error" role="alert" hidden></p>
+    <div class="start-summary" id="start-summary"></div>
+    <button id="start-game" class="button primary full">Runde starten<svg class="icon"><use href="#arrow"/></svg></button><p class="privacy-note"><svg class="icon"><use href="#lock"/></svg>Namen und Einstellungen bleiben auf diesem Gerät.</p>
+   </div>
+  </section>
+ </div>
+</section>
+<section id="reveal-view" class="view game-view" hidden aria-labelledby="turn-title">
+ <div class="game-toolbar"><button class="text-button exit-game"><svg class="icon"><use href="#back"/></svg>Zur Lobby</button><span class="phase-pill">01 / ROLLEN VERTEILEN</span><span id="reveal-progress" class="micro muted"></span></div>
+ <div class="game-centered"><span class="eyebrow">DAS GERÄT GEHÖRT JETZT</span><h1 id="turn-title" class="player-heading" tabindex="-1"></h1><p class="game-subtitle" id="turn-instruction">Nur du schaust hin. Die anderen drehen sich kurz weg.</p>
+ <button id="secret-card" class="secret-card" aria-label="Gedrückt halten, um deine Rolle anzusehen. Mit Leertaste oder Enter ebenfalls gedrückt halten." aria-describedby="hold-instruction"><span id="secret-cover" class="secret-cover"><span class="secret-micro micro">NUR FÜR DEINE AUGEN</span><svg class="secret-mask"><use href="#mask"/></svg><span class="secret-cover-label">Dein Geheimnis.</span><span class="secret-cover-sub">Gedrückt halten zum Aufdecken</span><span class="secret-lock"><svg class="icon"><use href="#lock"/></svg></span></span><span id="secret-content" class="secret-content" hidden></span></button>
+ <p class="hold-instruction" id="hold-instruction">Loslassen verdeckt die Karte sofort.</p><button class="text-button accessible-reveal" id="accessible-reveal">Karte per Klick anzeigen</button>
+ <button id="next-player" class="button primary next-player" disabled>Gesehen. Weitergeben.<svg class="icon"><use href="#arrow"/></svg></button><div class="handoff-dots" id="handoff-dots" aria-hidden="true"></div>
+ </div>
+</section>
+<section id="discussion-view" class="view game-view" hidden aria-labelledby="discussion-title"><div class="game-toolbar"><button class="text-button exit-game"><svg class="icon"><use href="#back"/></svg>Zur Lobby</button><span class="phase-pill">02 / HINWEISE & VERDACHT</span><span class="micro muted" id="round-number"></span></div><div class="game-centered discussion-centered"><span class="eyebrow" id="discussion-theme"></span><h1 class="stage-heading" id="discussion-title" tabindex="-1">Wer spielt<br><em>euch etwas vor?</em></h1><p class="game-subtitle" id="starter-text"></p><div class="timer-display" id="timer-display"><svg class="timer-ring" viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="82"/><circle class="timer-ring-fill" cx="90" cy="90" r="82"/></svg><div><span id="time-left" class="timer-digits">03:00</span><span class="micro" id="timer-caption">ZEIT ZUM DISKUTIEREN</span></div></div><div class="timer-actions"><button class="small-button" id="timer-pause"><svg class="icon"><use href="#pause"/></svg><span>Pause</span></button><button class="small-button" id="timer-reset"><svg class="icon"><use href="#refresh"/></svg>Neu starten</button></div><p id="timer-message" class="timer-message" role="status"></p><div id="alive-list" class="alive-list"></div><button id="go-vote" class="button primary">Zur Abstimmung<svg class="icon"><use href="#arrow"/></svg></button><p class="game-note">Noch unsicher? Ihr könnt vor der Auswahl weiterdiskutieren.</p></div></section>
+<section id="vote-view" class="view game-view" hidden aria-labelledby="vote-title"><div class="game-toolbar"><button class="text-button" id="back-discussion"><svg class="icon"><use href="#back"/></svg>Weiterdiskutieren</button><span class="phase-pill">03 / GRUPPENENTSCHEIDUNG</span></div><div class="vote-centered"><span class="eyebrow">JETZT WIRD’S ERNST</span><h1 class="stage-heading" id="vote-title" tabindex="-1">Wem vertraut<br><em>ihr nicht mehr?</em></h1><p class="game-subtitle">Stimmt gemeinsam ab. Wählt die Person aus, auf die sich eure Gruppe einigt.</p><div id="vote-grid" class="vote-grid" role="group" aria-label="Person zum Ausschließen auswählen"></div><button id="confirm-vote" class="button danger" disabled>Person auswählen<svg class="icon"><use href="#arrow"/></svg></button><p class="game-note">Die Auswahl allein schließt noch niemanden aus.</p></div></section>
+<section id="ejected-view" class="view game-view" hidden aria-labelledby="ejected-title"><div class="game-centered result-centered"><span class="result-emblem" aria-hidden="true"><svg><use href="#eye"/></svg></span><span class="eyebrow">DIE ENTSCHEIDUNG STEHT</span><h1 class="stage-heading player-heading" id="ejected-title" tabindex="-1"></h1><p class="game-subtitle" id="ejected-message"></p><p class="game-note" id="ejected-remaining"></p><button id="continue-round" class="button primary">Weiterdiskutieren<svg class="icon"><use href="#arrow"/></svg></button></div></section>
+<section id="result-view" class="view game-view" hidden aria-labelledby="result-title"><div class="game-centered result-centered"><span class="result-emblem" id="result-emblem" aria-hidden="true"><svg><use href="#shield"/></svg></span><span class="eyebrow">RUNDE AUFGELÖST</span><h1 class="stage-heading" id="result-title" tabindex="-1"></h1><p class="game-subtitle" id="result-subtitle"></p><div class="word-recap"><span class="micro muted">DER GESUCHTE BEGRIFF</span><strong id="result-word"></strong><span id="alternate-recap" class="muted"></span></div><div id="result-roster" class="result-roster"></div><button id="play-again" class="button primary full">Revanche. Gleiche Runde.<svg class="icon"><use href="#refresh"/></svg></button><button class="text-button" id="new-setup">Thema oder Gruppe ändern <span>↗</span></button></div></section>
+</main>
+<footer class="footer"><span class="micro">GUTE FREUNDE. SCHLECHTE AUSREDEN.</span><span class="micro muted">IMPOSTER / AFTER DARK <span class="footer-separator">·</span> FAN-PROJEKT</span></footer>
+</div></div>
+<dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-head"><span class="eyebrow" id="dialog-eyebrow">IMPOSTER AFTER DARK</span><button id="dialog-close" class="icon-button" aria-label="Schließen"><svg class="icon"><use href="#x"/></svg></button></div><h2 id="dialog-title"></h2><div id="dialog-body"></div><div id="dialog-actions" class="dialog-actions"></div></dialog>
+<noscript><div class="noscript">Zum Spielen muss JavaScript eingeschaltet sein. Es werden keine Daten an einen Spielserver gesendet.</div></noscript>
 </body>
 </html>
