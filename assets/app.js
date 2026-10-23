@@ -160,7 +160,7 @@
     if (!game || game.phase !== 'discussion') return;
     renderTimer(); if (!timer.paused) { timer.paused = true; } stopTimer(); game.vote(); selectedVote = null; renderVote();
   }
-  function initials(name) { const parts = name.trim().split(/\s+/); const first = s => Array.from(s || '')[0] || '?'; return (first(parts[0])+(parts.length > 1 ? first(parts.at(-1)) : '')).toLocaleUpperCase('de'); }
+  function initials(name) { const parts = name.trim().split(/\s+/); const first = s => typeof Intl.Segmenter === 'function' ? ([...new Intl.Segmenter('de',{granularity:'grapheme'}).segment(s || '')][0]?.segment || '?') : (Array.from(s || '')[0] || '?'); return (first(parts[0])+(parts.length > 1 ? first(parts.at(-1)) : '')).toLocaleUpperCase('de'); }
   function avatar(p) { const a = node('span','avatar',initials(p.name)); a.style.setProperty('--player-color',colors[p.id]); a.setAttribute('aria-hidden','true'); return a; }
   function renderVote() {
     showView('vote-view','#vote-title'); $('#vote-grid').replaceChildren(); $('#confirm-vote').disabled = true; $('#confirm-vote').firstChild.textContent = 'Person auswählen';
