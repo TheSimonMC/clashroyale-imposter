@@ -11,6 +11,14 @@
   let game = null, selectedVote = null, previousWord = '', secretShown = false, heldPointer = null, hideTimer = 0;
   let timer = {length: 180, remaining: 180000, deadline: 0, paused: false, interval: null};
   const dialog = $('#dialog');
+  const warmedImages=new Set();
+  function warmCardImages(){
+    if(theme!=='clash')return;
+    for(const src of ['assets/images/cards-base.webp','assets/images/cards-special.webp']){
+      if(warmedImages.has(src))continue;
+      warmedImages.add(src);const image=new Image();image.src=src;
+    }
+  }
   const svgNS = 'http://www.w3.org/2000/svg';
   function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; }
   function icon(name, className = 'icon') { const el = document.createElementNS(svgNS, 'svg'); el.setAttribute('class', className); el.setAttribute('aria-hidden', 'true'); const use = document.createElementNS(svgNS, 'use'); use.setAttribute('href', '#' + name); el.append(use); return el; }
@@ -94,6 +102,7 @@
     });
   }
   function updateSelection() {
+    warmCardImages();
     $$('.theme-card').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.theme === theme)));
     $$('.mode-option').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.mode === mode)));
     $('#clash-options').hidden = theme !== 'clash'; $('#custom-options').hidden = theme !== 'custom'; $('#hint-setting').hidden = mode === 'undercover';
@@ -115,6 +124,7 @@
     if (typeof content === 'string') $('#dialog-body').append(node('p','',content)); else $('#dialog-body').append(content);
     for (const action of actions) { const button = node('button','button ' + (action.danger ? 'danger' : action.primary ? 'primary' : 'secondary'),action.label); button.addEventListener('click', () => { dialog.close(); if (action.run) action.run(); }); $('#dialog-actions').append(button); }
     if (!dialog.open) dialog.showModal();
+    dialog.scrollTop=0;
   }
   function rules() {
     const content = node('div'); const steps = node('div','rules-steps');
